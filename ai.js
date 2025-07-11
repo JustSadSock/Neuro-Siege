@@ -15,7 +15,7 @@ class Enemy {
         }
     }
 
-    update(castle, walls, gates, rocks) {
+    update(castle, walls, gates, rocks, water) {
         if (!this.alive) return;
         const startX = Math.floor(this.x);
         const startY = Math.floor(this.y);
@@ -35,7 +35,9 @@ class Enemy {
             }
         }
         if (dist > 0) {
-            const step = Math.min(this.speed, dist);
+            let speed = this.speed;
+            if(water && water.some(w=>w.x===Math.floor(this.x)&&w.y===Math.floor(this.y))) speed *= 0.5;
+            const step = Math.min(speed, dist);
             this.x += (dx / dist) * step;
             this.y += (dy / dist) * step;
         }
@@ -119,11 +121,11 @@ export class AIController {
         this.enemies.push(new Enemy(x, y, type));
     }
 
-    update(castle, walls, gates, rocks) {
+    update(castle, walls, gates, rocks, water) {
         const killed = [];
         this.enemies.forEach(e => {
             const prev = e.alive;
-            e.update(castle, walls, gates, rocks);
+            e.update(castle, walls, gates, rocks, water);
             if (prev && !e.alive) killed.push(e);
         });
         this.enemies = this.enemies.filter(e => e.alive);

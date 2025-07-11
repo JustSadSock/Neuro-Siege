@@ -7,7 +7,9 @@ let rocks = [];
 let trees = [];
 let hills = [];
 
+let water = [];
 export function generateMap() {
+    water = [];
     rocks = [];
     trees = [];
     hills = [];
@@ -23,6 +25,8 @@ export function generateMap() {
         const cell = randomCell();
         hills.push(cell);
     }
+    const hy=Math.floor(Math.random()*MAP_SIZE);for(let x=0;x<MAP_SIZE;x++){water.push({x,y:hy});}
+    const vx=Math.floor(Math.random()*MAP_SIZE);for(let y=0;y<MAP_SIZE;y++){water.push({x:vx,y});}
 }
 
 function randomCell() {
@@ -59,6 +63,8 @@ export function drawBuildZone(ctx) {
 export function drawTerrain(ctx) {
     ctx.fillStyle = '#555';
     rocks.forEach(r => ctx.fillRect(r.x * TILE_SIZE, r.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
+    ctx.fillStyle = "#03a9f4";
+    water.forEach(w => ctx.fillRect(w.x * TILE_SIZE, w.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
     ctx.fillStyle = '#075604';
     trees.forEach(t => ctx.fillRect(t.x * TILE_SIZE, t.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
     ctx.fillStyle = '#444';
@@ -86,6 +92,9 @@ export function getRocks() {
     return rocks.slice();
 }
 
+export function getWater() {
+    return water.slice();
+}
 export function removeTree(x, y) {
     const idx = trees.findIndex(t => t.x === x && t.y === y);
     if (idx !== -1) {
