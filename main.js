@@ -1,4 +1,4 @@
-import { drawGrid, drawTerrain, drawBuildZone, inBuildZone, expandBuildZone, generateMap, isBlocked, getHills, getRocks, removeTree } from './map.js';
+import { drawGrid, drawTerrain, drawBuildZone, inBuildZone, expandBuildZone, generateMap, isBlocked, getHills, getRocks, getWater, removeTree } from './map.js';
 import { AIController } from './ai.js';
 import { setupUI, updateWave, updateCastleHp, updateResources, showSummary } from './ui.js';
 
@@ -15,13 +15,14 @@ let gates = [];
 let towers = [];
 let bullets = [];
 let hills = [];
+let water = [];
 let rocks = [];
 let deleteMode = false;
 
 generateMap();
 hills = getHills();
 rocks = getRocks();
-let buildMode = null; // 'wall','gate','tower'
+water = getWater();
 let gateToggleCooldown = 0;
 let essenceGainThisWave = 0;
 
@@ -73,15 +74,15 @@ function gameLoop() {
     drawGates();
     drawTowers();
     drawBullets();
-
-    if (running) {
+    if (!running) drawHeatmap(ctx, TILE_SIZE);
+    updateSquads();
         if (gateToggleCooldown > 0) gateToggleCooldown--;
-        const killed = ai.update(castle, walls, gates, rocks);
+        const killed = ai.update(castle, walls, gates, rocks, water);
         killed.forEach(e => {
-            // kills from castle don't give rewards
             if (e.type === 'elite') essenceGainThisWave += 1;
         });
         ai.enemies.forEach(e => {
+            recordEnemyPosition(e.x, e.y);
             // tower attacks
             towers.forEach(t => {
                 const dx = e.x - t.x;
@@ -234,13 +235,11 @@ function closeGates() {
 
 function endWave() {
     running = false;
-    const goldEarned = killsThisWave * 10;
-    resources.gold += goldEarned;
-    resources.essence += essenceGainThisWave;
-    resources.stone += walls.length;
-    resources.wood += gates.length + towers.length;
-    showSummary(`Wave ${wave} complete!\nEnemies destroyed: ${killsThisWave}\nGold earned: ${goldEarned}\nEssence gained: ${essenceGainThisWave}`, () => {
+    const state = { kills: killsThisWave, wallsIntact: walls.length, wallsTotal: walls.length, wallDamagePercent: 0, eliteKills: essenceGainThisWave, squads: squads.length, resources };
+    applyWaveRewards(state);
+    showSummary(`Wave ${wave} complete!\nEnemies destroyed: ${killsThisWave}`, () => {
         updateResources(resources.stone, resources.wood, resources.gold, resources.essence);
+        resetHeatmap();
     });
 }
 
