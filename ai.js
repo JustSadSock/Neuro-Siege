@@ -1,10 +1,11 @@
 class Enemy {
-    constructor(x, y) {
+    constructor(x, y, type = 'normal') {
         this.x = x;
         this.y = y;
-        this.speed = 0.5; // tiles per tick
+        this.type = type;
+        this.speed = type === 'elite' ? 0.4 : 0.5; // tiles per tick
         this.alive = true;
-        this.hp = 10;
+        this.hp = type === 'elite' ? 30 : 10;
     }
 
     takeDamage(dmg) {
@@ -41,7 +42,7 @@ class Enemy {
     }
 
     draw(ctx, tileSize) {
-        ctx.fillStyle = 'red';
+        ctx.fillStyle = this.type === 'elite' ? 'orange' : 'red';
         ctx.fillRect(this.x * tileSize, this.y * tileSize, tileSize, tileSize);
     }
 }
@@ -97,7 +98,7 @@ export class AIController {
         this.enemies = [];
     }
 
-    spawnEnemy() {
+    spawnEnemy(type = 'normal') {
         // spawn at random edge
         const edge = Math.floor(Math.random() * 4);
         let x, y;
@@ -114,12 +115,18 @@ export class AIController {
             x = 63;
             y = Math.random() * 64;
         }
-        this.enemies.push(new Enemy(x, y));
+        this.enemies.push(new Enemy(x, y, type));
     }
 
     update(castle, walls, gates) {
-        this.enemies.forEach(e => e.update(castle, walls, gates));
+        const killed = [];
+        this.enemies.forEach(e => {
+            const prev = e.alive;
+            e.update(castle, walls, gates);
+            if (prev && !e.alive) killed.push(e);
+        });
         this.enemies = this.enemies.filter(e => e.alive);
+        return killed;
     }
 
     draw(ctx, tileSize) {

@@ -1,6 +1,6 @@
 import { drawGrid, inBuildZone, expandBuildZone } from './map.js';
 import { AIController } from './ai.js';
-import { setupUI, updateWave, updateCastleHp, updateResources } from './ui.js';
+import { setupUI, updateWave, updateCastleHp, updateResources, showSummary } from './ui.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -8,7 +8,7 @@ const ctx = canvas.getContext('2d');
 const TILE_SIZE = 10;
 const castle = { x: 32, y: 32, hp: 100 };
 
-const resources = { stone: 100, wood: 150, gold: 200 };
+const resources = { stone: 100, wood: 150, gold: 200, essence: 0 };
 
 let walls = [];
 let gates = [];
@@ -16,10 +16,12 @@ let towers = [];
 let bullets = [];
 let buildMode = null; // 'wall','gate','tower'
 let gateToggleCooldown = 0;
+let essenceGainThisWave = 0;
 
 let wave = 0;
 let ai = new AIController();
 let running = false;
+let killsThisWave = 0;
 
 function drawCastle() {
     ctx.fillStyle = 'blue';
@@ -65,7 +67,11 @@ function gameLoop() {
 
     if (running) {
         if (gateToggleCooldown > 0) gateToggleCooldown--;
-        ai.update(castle, walls, gates);
+        const killed = ai.update(castle, walls, gates);
+        killed.forEach(e => {
+            // kills from castle don't give rewards
+            if (e.type === 'elite') essenceGainThisWave += 1;
+        });
         ai.enemies.forEach(e => {
             // tower attacks
             towers.forEach(t => {
@@ -95,6 +101,10 @@ function gameLoop() {
             const dist = Math.hypot(b.x - e.x, b.y - e.y);
             if (dist < 0.4) {
                 e.takeDamage(5);
+                if (!e.alive) {
+                    killsThisWave++;
+                    if (e.type === 'elite') essenceGainThisWave += 1;
+                }
                 bullets.splice(idx,1);
             }
         });
@@ -102,10 +112,13 @@ function gameLoop() {
         towers.forEach(t => { if (t.cooldown > 0) t.cooldown -= 1; });
 
         ai.draw(ctx, TILE_SIZE);
+        if (ai.enemies.length === 0) {
+            endWave();
+        }
     }
 
     updateCastleHp(castle.hp);
-    updateResources(resources.stone, resources.wood, resources.gold);
+    updateResources(resources.stone, resources.wood, resources.gold, resources.essence);
     if (castle.hp > 0) {
         requestAnimationFrame(gameLoop);
     } else {
@@ -150,7 +163,7 @@ canvas.addEventListener('click', (e) => {
             resources.gold -= 50;
         }
     }
-    updateResources(resources.stone, resources.wood, resources.gold);
+    updateResources(resources.stone, resources.wood, resources.gold, resources.essence);
 });
 
 function startWave() {
@@ -161,7 +174,12 @@ function startWave() {
     for (let i = 0; i < wave; i++) {
         ai.spawnEnemy();
     }
+    if (wave % 5 === 0) {
+        ai.spawnEnemy('elite');
+    }
     running = true;
+    killsThisWave = 0;
+    essenceGainThisWave = 0;
 }
 
 function openGates() {
@@ -176,11 +194,23 @@ function closeGates() {
     gateToggleCooldown = 600;
 }
 
+function endWave() {
+    running = false;
+    const goldEarned = killsThisWave * 10;
+    resources.gold += goldEarned;
+    resources.essence += essenceGainThisWave;
+    resources.stone += walls.length;
+    resources.wood += gates.length + towers.length;
+    showSummary(`Wave ${wave} complete!\nEnemies destroyed: ${killsThisWave}\nGold earned: ${goldEarned}\nEssence gained: ${essenceGainThisWave}`, () => {
+        updateResources(resources.stone, resources.wood, resources.gold, resources.essence);
+    });
+}
+
 setupUI(startWave,
     () => setBuildMode('wall'),
     () => setBuildMode('gate'),
     () => setBuildMode('tower'),
     openGates,
     closeGates);
-updateResources(resources.stone, resources.wood, resources.gold);
+updateResources(resources.stone, resources.wood, resources.gold, resources.essence);
 requestAnimationFrame(gameLoop);
