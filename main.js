@@ -1,4 +1,4 @@
-import { drawGrid, drawTerrain, inBuildZone, expandBuildZone, generateMap, isBlocked, getHills, getRocks, removeTree } from './map.js';
+import { drawGrid, drawTerrain, drawBuildZone, inBuildZone, expandBuildZone, generateMap, isBlocked, getHills, getRocks, removeTree } from './map.js';
 import { AIController } from './ai.js';
 import { setupUI, updateWave, updateCastleHp, updateResources, showSummary } from './ui.js';
 
@@ -66,6 +66,7 @@ function drawBullets() {
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawGrid(ctx);
+    drawBuildZone(ctx);
     drawTerrain(ctx);
     drawCastle();
     drawWalls();
