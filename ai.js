@@ -15,11 +15,11 @@ class Enemy {
         }
     }
 
-    update(castle, walls, gates) {
+    update(castle, walls, gates, rocks) {
         if (!this.alive) return;
         const startX = Math.floor(this.x);
         const startY = Math.floor(this.y);
-        const next = findNextStep(startX, startY, castle, walls, gates);
+        const next = findNextStep(startX, startY, castle, walls, gates, rocks);
 
         const tx = next.x + 0.5;
         const ty = next.y + 0.5;
@@ -55,13 +55,14 @@ function isBlockedCell(x, y, walls, gates) {
     return false;
 }
 
-function findNextStep(sx, sy, castle, walls, gates) {
+function findNextStep(sx, sy, castle, walls, gates, rocks) {
     const targetX = castle.x;
     const targetY = castle.y;
     const startKey = `${sx},${sy}`;
     const blocked = new Set();
     walls.forEach(w => blocked.add(`${w.x},${w.y}`));
     gates.filter(g => !g.open).forEach(g => blocked.add(`${g.x},${g.y}`));
+    rocks.forEach(r => blocked.add(`${r.x},${r.y}`));
     const queue = [[sx, sy]];
     const visited = new Set([startKey]);
     const parent = {};
@@ -118,11 +119,11 @@ export class AIController {
         this.enemies.push(new Enemy(x, y, type));
     }
 
-    update(castle, walls, gates) {
+    update(castle, walls, gates, rocks) {
         const killed = [];
         this.enemies.forEach(e => {
             const prev = e.alive;
-            e.update(castle, walls, gates);
+            e.update(castle, walls, gates, rocks);
             if (prev && !e.alive) killed.push(e);
         });
         this.enemies = this.enemies.filter(e => e.alive);

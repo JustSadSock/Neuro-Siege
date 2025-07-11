@@ -1,4 +1,4 @@
-export function setupUI(onStartWave, onBuildWall, onBuildGate, onBuildTower, onOpenGate, onCloseGate) {
+export function setupUI(onStartWave, onBuildWall, onBuildGate, onBuildTower, onDelete, onOpenGate, onCloseGate) {
     const btn = document.getElementById('startBtn');
     btn.addEventListener('click', onStartWave);
 
@@ -10,6 +10,9 @@ export function setupUI(onStartWave, onBuildWall, onBuildGate, onBuildTower, onO
 
     const towerBtn = document.getElementById('buildTowerBtn');
     towerBtn.addEventListener('click', onBuildTower);
+
+    const deleteBtn = document.getElementById('deleteBtn');
+    deleteBtn.addEventListener('click', onDelete);
 
     document.getElementById('openGateBtn').addEventListener('click', onOpenGate);
     document.getElementById('closeGateBtn').addEventListener('click', onCloseGate);
