@@ -1,9 +1,18 @@
-export function setupUI(onStartWave, onToggleBuild) {
+export function setupUI(onStartWave, onBuildWall, onBuildGate, onBuildTower, onOpenGate, onCloseGate) {
     const btn = document.getElementById('startBtn');
     btn.addEventListener('click', onStartWave);
 
     const buildBtn = document.getElementById('buildWallBtn');
-    buildBtn.addEventListener('click', onToggleBuild);
+    buildBtn.addEventListener('click', onBuildWall);
+
+    const gateBtn = document.getElementById('buildGateBtn');
+    gateBtn.addEventListener('click', onBuildGate);
+
+    const towerBtn = document.getElementById('buildTowerBtn');
+    towerBtn.addEventListener('click', onBuildTower);
+
+    document.getElementById('openGateBtn').addEventListener('click', onOpenGate);
+    document.getElementById('closeGateBtn').addEventListener('click', onCloseGate);
 }
 
 export function updateWave(wave) {

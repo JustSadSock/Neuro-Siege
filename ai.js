@@ -4,22 +4,39 @@ class Enemy {
         this.y = y;
         this.speed = 0.5; // tiles per tick
         this.alive = true;
+        this.hp = 10;
     }
 
-    update(castle, walls) {
-        const dx = castle.x - this.x;
-        const dy = castle.y - this.y;
-        const dist = Math.hypot(dx, dy);
-        if (dist < 0.1) {
-            castle.hp -= 1;
+    takeDamage(dmg) {
+        this.hp -= dmg;
+        if (this.hp <= 0) {
             this.alive = false;
-            return;
         }
-        let nx = this.x + (dx / dist) * this.speed;
-        let ny = this.y + (dy / dist) * this.speed;
-        if (!isWall(nx, ny, walls)) {
-            this.x = nx;
-            this.y = ny;
+    }
+
+    update(castle, walls, gates) {
+        if (!this.alive) return;
+        const startX = Math.floor(this.x);
+        const startY = Math.floor(this.y);
+        const next = findNextStep(startX, startY, castle, walls, gates);
+
+        const tx = next.x + 0.5;
+        const ty = next.y + 0.5;
+        const dx = tx - this.x;
+        const dy = ty - this.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 0.01) {
+            // reached center of cell
+            if (next.x === castle.x && next.y === castle.y) {
+                castle.hp -= 1;
+                this.alive = false;
+                return;
+            }
+        }
+        if (dist > 0) {
+            const step = Math.min(this.speed, dist);
+            this.x += (dx / dist) * step;
+            this.y += (dy / dist) * step;
         }
     }
 
@@ -29,10 +46,50 @@ class Enemy {
     }
 }
 
-function isWall(x, y, walls) {
+function isBlockedCell(x, y, walls, gates) {
     const tx = Math.floor(x);
     const ty = Math.floor(y);
-    return walls.some(w => w.x === tx && w.y === ty);
+    if (walls.some(w => w.x === tx && w.y === ty)) return true;
+    if (gates.some(g => !g.open && g.x === tx && g.y === ty)) return true;
+    return false;
+}
+
+function findNextStep(sx, sy, castle, walls, gates) {
+    const targetX = castle.x;
+    const targetY = castle.y;
+    const startKey = `${sx},${sy}`;
+    const blocked = new Set();
+    walls.forEach(w => blocked.add(`${w.x},${w.y}`));
+    gates.filter(g => !g.open).forEach(g => blocked.add(`${g.x},${g.y}`));
+    const queue = [[sx, sy]];
+    const visited = new Set([startKey]);
+    const parent = {};
+    let found = false;
+    while (queue.length && !found) {
+        const [cx, cy] = queue.shift();
+        if (cx === targetX && cy === targetY) {
+            found = true;
+            break;
+        }
+        const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+        for (const [dx, dy] of dirs) {
+            const nx = cx + dx;
+            const ny = cy + dy;
+            if (nx < 0 || ny < 0 || nx >= 64 || ny >= 64) continue;
+            const key = `${nx},${ny}`;
+            if (blocked.has(key) || visited.has(key)) continue;
+            visited.add(key);
+            parent[key] = `${cx},${cy}`;
+            queue.push([nx, ny]);
+        }
+    }
+    let key = `${targetX},${targetY}`;
+    if (!parent[key]) return { x: sx, y: sy };
+    while (parent[key] && parent[key] !== startKey) {
+        key = parent[key];
+    }
+    const [nx, ny] = key.split(',').map(Number);
+    return { x: nx, y: ny };
 }
 
 export class AIController {
@@ -60,8 +117,8 @@ export class AIController {
         this.enemies.push(new Enemy(x, y));
     }
 
-    update(castle, walls) {
-        this.enemies.forEach(e => e.update(castle, walls));
+    update(castle, walls, gates) {
+        this.enemies.forEach(e => e.update(castle, walls, gates));
         this.enemies = this.enemies.filter(e => e.alive);
     }
 
