@@ -1,7 +1,7 @@
 const MAP_SIZE = 64; // 64x64 grid
 const TILE_SIZE = 10; // pixels
-const BUILD_ZONE_START = 22; // 20x20 center area -> start index 22 to 42 for 64 grid
-const BUILD_ZONE_END = 42;
+let buildZoneStart = 22; // 20x20 center area -> start index 22 to 42 for 64 grid
+let buildZoneEnd = 42;
 
 export function drawGrid(ctx) {
     ctx.strokeStyle = '#333';
@@ -21,9 +21,20 @@ export function drawGrid(ctx) {
 
 export function inBuildZone(x, y) {
     return (
-        x >= BUILD_ZONE_START &&
-        x < BUILD_ZONE_END &&
-        y >= BUILD_ZONE_START &&
-        y < BUILD_ZONE_END
+        x >= buildZoneStart &&
+        x < buildZoneEnd &&
+        y >= buildZoneStart &&
+        y < buildZoneEnd
     );
+}
+
+export function expandBuildZone() {
+    if (buildZoneStart > 12) {
+        buildZoneStart -= 5;
+        buildZoneEnd += 5;
+    }
+}
+
+export function getBuildZone() {
+    return { start: buildZoneStart, end: buildZoneEnd };
 }

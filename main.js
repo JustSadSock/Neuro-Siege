@@ -1,4 +1,4 @@
-import { drawGrid, inBuildZone } from './map.js';
+import { drawGrid, inBuildZone, expandBuildZone } from './map.js';
 import { AIController } from './ai.js';
 import { setupUI, updateWave, updateCastleHp, updateResources } from './ui.js';
 
@@ -11,7 +11,11 @@ const castle = { x: 32, y: 32, hp: 100 };
 const resources = { stone: 100, wood: 150, gold: 200 };
 
 let walls = [];
-let buildMode = false;
+let gates = [];
+let towers = [];
+let bullets = [];
+let buildMode = null; // 'wall','gate','tower'
+let gateToggleCooldown = 0;
 
 let wave = 0;
 let ai = new AIController();
@@ -29,14 +33,74 @@ function drawWalls() {
     });
 }
 
+function drawGates() {
+    gates.forEach(g => {
+        ctx.fillStyle = g.open ? 'lightgreen' : 'brown';
+        ctx.fillRect(g.x * TILE_SIZE, g.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    });
+}
+
+function drawTowers() {
+    ctx.fillStyle = 'purple';
+    towers.forEach(t => {
+        ctx.fillRect(t.x * TILE_SIZE, t.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    });
+}
+
+function drawBullets() {
+    ctx.fillStyle = 'yellow';
+    bullets.forEach(b => {
+        ctx.fillRect(b.x * TILE_SIZE, b.y * TILE_SIZE, 2, 2);
+    });
+}
+
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawGrid(ctx);
     drawCastle();
     drawWalls();
+    drawGates();
+    drawTowers();
+    drawBullets();
 
     if (running) {
-        ai.update(castle, walls);
+        if (gateToggleCooldown > 0) gateToggleCooldown--;
+        ai.update(castle, walls, gates);
+        ai.enemies.forEach(e => {
+            // tower attacks
+            towers.forEach(t => {
+                const dx = e.x - t.x;
+                const dy = e.y - t.y;
+                const dist = Math.hypot(dx, dy);
+                if (dist <= t.range && t.cooldown <= 0) {
+                    const normx = dx / dist;
+                    const normy = dy / dist;
+                    bullets.push({ x: t.x + 0.5, y: t.y + 0.5, dx: normx, dy: normy, speed: 1, target: e });
+                    t.cooldown = t.rate;
+                }
+            });
+        });
+
+        bullets.forEach(b => {
+            b.x += b.dx * b.speed;
+            b.y += b.dy * b.speed;
+        });
+
+        bullets.forEach((b, idx) => {
+            const e = b.target;
+            if (!e.alive) {
+                bullets.splice(idx,1);
+                return;
+            }
+            const dist = Math.hypot(b.x - e.x, b.y - e.y);
+            if (dist < 0.4) {
+                e.takeDamage(5);
+                bullets.splice(idx,1);
+            }
+        });
+
+        towers.forEach(t => { if (t.cooldown > 0) t.cooldown -= 1; });
+
         ai.draw(ctx, TILE_SIZE);
     }
 
@@ -50,9 +114,15 @@ function gameLoop() {
     }
 }
 
-function toggleBuildMode() {
-    buildMode = !buildMode;
-    document.getElementById('buildWallBtn').textContent = buildMode ? 'Cancel Build' : 'Build Wall';
+function setBuildMode(mode, button) {
+    if (buildMode === mode) {
+        buildMode = null;
+    } else {
+        buildMode = mode;
+    }
+    document.getElementById('buildWallBtn').textContent = buildMode === 'wall' ? 'Cancel' : 'Build Wall';
+    document.getElementById('buildGateBtn').textContent = buildMode === 'gate' ? 'Cancel' : 'Build Gate';
+    document.getElementById('buildTowerBtn').textContent = buildMode === 'tower' ? 'Cancel' : 'Build Tower';
 }
 
 canvas.addEventListener('click', (e) => {
@@ -61,23 +131,56 @@ canvas.addEventListener('click', (e) => {
     const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
     const y = Math.floor((e.clientY - rect.top) / TILE_SIZE);
     if (!inBuildZone(x, y)) return;
-    if (resources.stone >= 10 && !walls.some(w => w.x === x && w.y === y)) {
-        walls.push({ x, y, hp: 150 });
-        resources.stone -= 10;
-        updateResources(resources.stone, resources.wood, resources.gold);
+
+    if (buildMode === 'wall') {
+        if (resources.stone >= 10 && !walls.some(w => w.x === x && w.y === y)) {
+            walls.push({ x, y, hp: 150 });
+            resources.stone -= 10;
+        }
+    } else if (buildMode === 'gate') {
+        if (resources.stone >= 20 && resources.wood >= 10 && !gates.some(g => g.x === x && g.y === y)) {
+            gates.push({ x, y, hp: 100, open: false });
+            resources.stone -= 20;
+            resources.wood -= 10;
+        }
+    } else if (buildMode === 'tower') {
+        if (resources.wood >= 20 && resources.gold >= 50 && !towers.some(t => t.x === x && t.y === y)) {
+            towers.push({ x, y, range: 6, rate: 60, cooldown: 0 });
+            resources.wood -= 20;
+            resources.gold -= 50;
+        }
     }
+    updateResources(resources.stone, resources.wood, resources.gold);
 });
 
 function startWave() {
-    buildMode = false;
+    buildMode = null;
     wave += 1;
     updateWave(wave);
+    if (wave % 5 === 0) expandBuildZone();
     for (let i = 0; i < wave; i++) {
         ai.spawnEnemy();
     }
     running = true;
 }
 
-setupUI(startWave, toggleBuildMode);
+function openGates() {
+    if (gateToggleCooldown > 0) return;
+    gates.forEach(g => g.open = true);
+    gateToggleCooldown = 600; // ~10 seconds at 60fps
+}
+
+function closeGates() {
+    if (gateToggleCooldown > 0) return;
+    gates.forEach(g => g.open = false);
+    gateToggleCooldown = 600;
+}
+
+setupUI(startWave,
+    () => setBuildMode('wall'),
+    () => setBuildMode('gate'),
+    () => setBuildMode('tower'),
+    openGates,
+    closeGates);
 updateResources(resources.stone, resources.wood, resources.gold);
 requestAnimationFrame(gameLoop);
