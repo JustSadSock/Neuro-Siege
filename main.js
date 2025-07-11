@@ -1,4 +1,4 @@
-import { drawGrid, inBuildZone, expandBuildZone } from './map.js';
+import { drawGrid, drawTerrain, inBuildZone, expandBuildZone, generateMap, isBlocked, getHills, getRocks, removeTree } from './map.js';
 import { AIController } from './ai.js';
 import { setupUI, updateWave, updateCastleHp, updateResources, showSummary } from './ui.js';
 
@@ -14,6 +14,13 @@ let walls = [];
 let gates = [];
 let towers = [];
 let bullets = [];
+let hills = [];
+let rocks = [];
+let deleteMode = false;
+
+generateMap();
+hills = getHills();
+rocks = getRocks();
 let buildMode = null; // 'wall','gate','tower'
 let gateToggleCooldown = 0;
 let essenceGainThisWave = 0;
@@ -59,6 +66,7 @@ function drawBullets() {
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawGrid(ctx);
+    drawTerrain(ctx);
     drawCastle();
     drawWalls();
     drawGates();
@@ -67,7 +75,7 @@ function gameLoop() {
 
     if (running) {
         if (gateToggleCooldown > 0) gateToggleCooldown--;
-        const killed = ai.update(castle, walls, gates);
+        const killed = ai.update(castle, walls, gates, rocks);
         killed.forEach(e => {
             // kills from castle don't give rewards
             if (e.type === 'elite') essenceGainThisWave += 1;
@@ -133,32 +141,61 @@ function setBuildMode(mode, button) {
     } else {
         buildMode = mode;
     }
+    deleteMode = false;
     document.getElementById('buildWallBtn').textContent = buildMode === 'wall' ? 'Cancel' : 'Build Wall';
     document.getElementById('buildGateBtn').textContent = buildMode === 'gate' ? 'Cancel' : 'Build Gate';
     document.getElementById('buildTowerBtn').textContent = buildMode === 'tower' ? 'Cancel' : 'Build Tower';
+    document.getElementById('deleteBtn').textContent = 'Delete';
+}
+
+function toggleDeleteMode() {
+    buildMode = null;
+    deleteMode = !deleteMode;
+    document.getElementById('buildWallBtn').textContent = 'Build Wall';
+    document.getElementById('buildGateBtn').textContent = 'Build Gate';
+    document.getElementById('buildTowerBtn').textContent = 'Build Tower';
+    document.getElementById('deleteBtn').textContent = deleteMode ? 'Cancel' : 'Delete';
 }
 
 canvas.addEventListener('click', (e) => {
-    if (!buildMode || running) return;
+    if (running) return;
     const rect = canvas.getBoundingClientRect();
     const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
     const y = Math.floor((e.clientY - rect.top) / TILE_SIZE);
-    if (!inBuildZone(x, y)) return;
+    if (deleteMode) {
+        let removed = false;
+        const wi = walls.findIndex(w => w.x === x && w.y === y);
+        if (wi !== -1) { walls.splice(wi,1); resources.stone += 5; removed=true; }
+        const gi = gates.findIndex(g => g.x === x && g.y === y);
+        if (gi !== -1) { gates.splice(gi,1); resources.stone += 10; resources.wood += 5; removed=true; }
+        const ti = towers.findIndex(t => t.x === x && t.y === y);
+        if (ti !== -1) { towers.splice(ti,1); resources.wood += 10; resources.gold += 25; removed=true; }
+        if (removed) updateResources(resources.stone, resources.wood, resources.gold, resources.essence);
+        return;
+    }
+
+    if (!buildMode) return;
+    if (!inBuildZone(x, y) || isBlocked(x,y)) return;
 
     if (buildMode === 'wall') {
         if (resources.stone >= 10 && !walls.some(w => w.x === x && w.y === y)) {
+            if (removeTree(x,y)) resources.wood += 5;
             walls.push({ x, y, hp: 150 });
             resources.stone -= 10;
         }
     } else if (buildMode === 'gate') {
         if (resources.stone >= 20 && resources.wood >= 10 && !gates.some(g => g.x === x && g.y === y)) {
+            if (removeTree(x,y)) resources.wood += 5;
             gates.push({ x, y, hp: 100, open: false });
             resources.stone -= 20;
             resources.wood -= 10;
         }
     } else if (buildMode === 'tower') {
         if (resources.wood >= 20 && resources.gold >= 50 && !towers.some(t => t.x === x && t.y === y)) {
-            towers.push({ x, y, range: 6, rate: 60, cooldown: 0 });
+            if (removeTree(x,y)) resources.wood += 5;
+            const baseRange = 6;
+            const bonus = hills.some(h => h.x === x && h.y === y) ? 2 : 0;
+            towers.push({ x, y, range: baseRange + bonus, rate: 60, cooldown: 0 });
             resources.wood -= 20;
             resources.gold -= 50;
         }
@@ -210,6 +247,7 @@ setupUI(startWave,
     () => setBuildMode('wall'),
     () => setBuildMode('gate'),
     () => setBuildMode('tower'),
+    toggleDeleteMode,
     openGates,
     closeGates);
 updateResources(resources.stone, resources.wood, resources.gold, resources.essence);
