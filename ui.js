@@ -23,8 +23,21 @@ export function updateCastleHp(hp) {
     document.getElementById('castleHp').textContent = `Castle HP: ${hp}`;
 }
 
-export function updateResources(stone, wood, gold) {
+export function updateResources(stone, wood, gold, essence) {
     document.getElementById('stone').textContent = `Stone: ${stone}`;
     document.getElementById('wood').textContent = `Wood: ${wood}`;
     document.getElementById('gold').textContent = `Gold: ${gold}`;
+    document.getElementById('essence').textContent = `Essence: ${essence}`;
+}
+
+export function showSummary(text, onContinue) {
+    const overlay = document.getElementById('summary');
+    const p = document.getElementById('summaryText');
+    const btn = document.getElementById('continueBtn');
+    p.textContent = text;
+    overlay.classList.remove('hidden');
+    btn.onclick = () => {
+        overlay.classList.add('hidden');
+        if (onContinue) onContinue();
+    };
 }
