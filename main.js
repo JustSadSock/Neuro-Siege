@@ -125,7 +125,6 @@ function gameLoop() {
         if (ai.enemies.length === 0) {
             endWave();
         }
-    }
 
     updateCastleHp(castle.hp);
     updateResources(resources.stone, resources.wood, resources.gold, resources.essence);
