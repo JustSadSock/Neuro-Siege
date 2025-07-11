@@ -1,0 +1,23 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+    background: #111;
+    color: #fff;
+}
+
+#gameCanvas {
+    display: block;
+    margin: 0 auto;
+    background: #222;
+    image-rendering: pixelated;
+}
+
+#ui {
+    text-align: center;
+    margin: 10px;
+}
+
+button {
+    padding: 5px 10px;
+    margin-right: 10px;
+}
