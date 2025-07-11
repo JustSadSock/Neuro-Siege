@@ -47,6 +47,15 @@ export function drawGrid(ctx) {
     }
 }
 
+export function drawBuildZone(ctx) {
+    const width = (buildZoneEnd - buildZoneStart) * TILE_SIZE;
+    const height = width;
+    ctx.fillStyle = 'rgba(0, 128, 0, 0.1)';
+    ctx.fillRect(buildZoneStart * TILE_SIZE, buildZoneStart * TILE_SIZE, width, height);
+    ctx.strokeStyle = 'rgba(0, 255, 0, 0.5)';
+    ctx.strokeRect(buildZoneStart * TILE_SIZE, buildZoneStart * TILE_SIZE, width, height);
+}
+
 export function drawTerrain(ctx) {
     ctx.fillStyle = '#555';
     rocks.forEach(r => ctx.fillRect(r.x * TILE_SIZE, r.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
