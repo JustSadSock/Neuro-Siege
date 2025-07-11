@@ -6,7 +6,7 @@ class Enemy {
         this.alive = true;
     }
 
-    update(castle) {
+    update(castle, walls) {
         const dx = castle.x - this.x;
         const dy = castle.y - this.y;
         const dist = Math.hypot(dx, dy);
@@ -15,14 +15,24 @@ class Enemy {
             this.alive = false;
             return;
         }
-        this.x += (dx / dist) * this.speed;
-        this.y += (dy / dist) * this.speed;
+        let nx = this.x + (dx / dist) * this.speed;
+        let ny = this.y + (dy / dist) * this.speed;
+        if (!isWall(nx, ny, walls)) {
+            this.x = nx;
+            this.y = ny;
+        }
     }
 
     draw(ctx, tileSize) {
         ctx.fillStyle = 'red';
         ctx.fillRect(this.x * tileSize, this.y * tileSize, tileSize, tileSize);
     }
+}
+
+function isWall(x, y, walls) {
+    const tx = Math.floor(x);
+    const ty = Math.floor(y);
+    return walls.some(w => w.x === tx && w.y === ty);
 }
 
 export class AIController {
@@ -50,8 +60,8 @@ export class AIController {
         this.enemies.push(new Enemy(x, y));
     }
 
-    update(castle) {
-        this.enemies.forEach(e => e.update(castle));
+    update(castle, walls) {
+        this.enemies.forEach(e => e.update(castle, walls));
         this.enemies = this.enemies.filter(e => e.alive);
     }
 
