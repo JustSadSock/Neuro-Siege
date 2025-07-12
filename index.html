@@ -8,19 +8,27 @@
 </head>
 <body>
     <div id="ui">
-        <button id="startBtn">Start Wave</button>
-        <button id="buildWallBtn">Build Wall</button>
-        <button id="buildGateBtn">Build Gate</button>
-        <button id="buildTowerBtn">Build Tower</button>
-        <button id="deleteBtn">Delete</button>
-        <button id="openGateBtn">Open Gates</button>
-        <button id="closeGateBtn">Close Gates</button>
-        <span id="waveCounter">Wave: 0</span>
-        <span id="castleHp">Castle HP: 100</span>
-        <span id="stone">Stone: 100</span>
-        <span id="wood">Wood: 150</span>
-        <span id="gold">Gold: 200</span>
-        <span id="essence">Essence: 0</span>
+        <div id="controls">
+            <button id="startBtn">Start Wave</button>
+            <div class="group">
+                <button id="buildWallBtn">Build Wall</button>
+                <button id="buildGateBtn">Build Gate</button>
+                <button id="buildTowerBtn">Build Tower</button>
+                <button id="deleteBtn">Delete</button>
+            </div>
+            <div class="group">
+                <button id="openGateBtn">Open Gates</button>
+                <button id="closeGateBtn">Close Gates</button>
+            </div>
+        </div>
+        <div id="resources">
+            <span id="waveCounter">Wave: 0</span>
+            <span id="castleHp">Castle HP: 100</span>
+            <span id="stone">Stone: 100</span>
+            <span id="wood">Wood: 150</span>
+            <span id="gold">Gold: 200</span>
+            <span id="essence">Essence: 0</span>
+        </div>
     </div>
     <canvas id="gameCanvas" width="640" height="640"></canvas>
 

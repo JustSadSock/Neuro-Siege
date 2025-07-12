@@ -123,7 +123,7 @@ function gameLoop() {
         towers.forEach(t => { if (t.cooldown > 0) t.cooldown -= 1; });
 
         ai.draw(ctx, TILE_SIZE);
-        if (ai.enemies.length === 0) {
+        if (running && ai.enemies.length === 0) {
             endWave();
         }
 
