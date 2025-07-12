@@ -2,45 +2,46 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Neuro-Siege</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="mobile.css">
 </head>
 <body>
-    <div id="ui">
-        <div id="controls">
-            <button id="startBtn">Start Wave</button>
-            <div class="group">
-                <button id="buildWallBtn">Build Wall</button>
-                <button id="buildGateBtn">Build Gate</button>
-                <button id="buildTowerBtn">Build Tower</button>
-                <button id="deleteBtn">Delete</button>
-            </div>
-            <div class="group">
-                <button id="openGateBtn">Open Gates</button>
-                <button id="closeGateBtn">Close Gates</button>
-            </div>
-        </div>
-        <div id="resources">
-            <span id="waveCounter">Wave: 0</span>
-            <span id="castleHp">Castle HP: 100</span>
+    <header id="topBar">
+        <button id="menuBtn" aria-label="Menu" class="icon-btn">&#9776;</button>
+        <div id="resourceSummary">
             <span id="stone">Stone: 100</span>
             <span id="wood">Wood: 150</span>
             <span id="gold">Gold: 200</span>
             <span id="essence">Essence: 0</span>
         </div>
-    </div>
-    <canvas id="gameCanvas" width="640" height="640"></canvas>
-
-    <div id="summary" class="hidden">
-        <div id="summaryContent">
-            <p id="summaryText"></p>
-            <button id="continueBtn">Continue</button>
+        <span id="castleHp">&#10084;100</span>
+        <span id="waveCounter">&#127754;0</span>
+    </header>
+    <aside id="sideMenu" class="panel is-hidden"></aside>
+    <main id="gameArea">
+        <canvas id="gameCanvas" width="640" height="640" tabindex="0"></canvas>
+        <button id="analyticsBtn" class="fab" aria-label="Analytics">&#128202;</button>
+    </main>
+    <div id="bottomSheet" class="sheet">
+        <button class="sheet-handle" id="sheetToggle">^</button>
+        <div class="icon-row">
+            <button id="buildWallBtn" aria-label="Build Wall">&#128679;</button>
+            <button id="buildGateBtn" aria-label="Build Gate">&#128682;</button>
+            <button id="buildTowerBtn" aria-label="Build Tower">&#127993;</button>
+            <button id="deleteBtn" aria-label="Delete">&#9881;&#65039;</button>
+        </div>
+        <div class="group">
+            <button id="startBtn" aria-label="Start Wave">Start</button>
+            <button id="openGateBtn" aria-label="Open Gates">Open</button>
+            <button id="closeGateBtn" aria-label="Close Gates">Close</button>
         </div>
     </div>
-    <div id="statsPanel" class="hidden">
+    <div id="modalOverlay" class="modal is-hidden">
         <div id="statsContent"></div>
-        <button id="statsContinue">Continue</button>
+        <button class="btn-continue" id="statsContinue">Continue</button>
+        <span class="modal-close" id="modalCloseBtn" aria-label="Close">&#10005;</span>
     </div>
 
     <script type="module" src="economy.js"></script>

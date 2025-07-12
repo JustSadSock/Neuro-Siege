@@ -24,6 +24,52 @@ export function setupUI(
 
     document.getElementById('openGateBtn').addEventListener('click', onOpenGate);
     document.getElementById('closeGateBtn').addEventListener('click', onCloseGate);
+
+    const sheetToggle = document.getElementById('sheetToggle');
+    sheetToggle.addEventListener('click', () => {
+        const sheet = document.getElementById('bottomSheet');
+        if (sheet.classList.contains('is-open')) {
+            closeSheet();
+        } else {
+            openSheet();
+        }
+    });
+
+    const menuBtn = document.getElementById('menuBtn');
+    menuBtn.addEventListener('click', () => {
+        const menu = document.getElementById('sideMenu');
+        menu.classList.toggle('is-shown');
+    });
+
+    const analyticsBtn = document.getElementById('analyticsBtn');
+    analyticsBtn.addEventListener('click', () => {
+        showStatsPanel('<p>Heatmap</p>');
+    });
+}
+
+export function showModal(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.remove('is-hidden');
+    el.classList.add('is-shown');
+  }
+}
+
+export function hideModal(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.add('is-hidden');
+    el.classList.remove('is-shown');
+  }
+  document.getElementById('gameCanvas')?.focus();
+}
+
+export function openSheet() {
+  document.getElementById('bottomSheet')?.classList.add('is-open');
+}
+
+export function closeSheet() {
+  document.getElementById('bottomSheet')?.classList.remove('is-open');
 }
 
 export function updateWave(wave) {
@@ -42,26 +88,22 @@ export function updateResources(stone, wood, gold, essence) {
 }
 
 export function showSummary(text, onContinue) {
-    const overlay = document.getElementById('summary');
-    const p = document.getElementById('summaryText');
-    const btn = document.getElementById('continueBtn');
-    p.textContent = text;
-    overlay.classList.remove('hidden');
-    btn.onclick = () => {
-        overlay.classList.add('hidden');
-        if (onContinue) onContinue();
-    };
+  showStatsPanel(`<p id="summaryText">${text}</p>`, onContinue);
 }
 
 
 export function showStatsPanel(html, onContinue) {
-  const panel = document.getElementById('statsPanel');
   const container = document.getElementById('statsContent');
   const btn = document.getElementById('statsContinue');
+  const close = document.getElementById('modalCloseBtn');
   container.innerHTML = html;
-  panel.classList.remove('hidden');
-  btn.onclick = () => {
-    panel.classList.add('hidden');
+  const handler = () => {
+    hideModal('modalOverlay');
+    btn.removeEventListener('click', handler);
+    close.removeEventListener('click', handler);
     if (onContinue) onContinue();
   };
+  btn.addEventListener('click', handler);
+  close.addEventListener('click', handler);
+  showModal('modalOverlay');
 }

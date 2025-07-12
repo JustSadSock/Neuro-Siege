@@ -41,6 +41,53 @@ import { squads, updateSquads } from './troops.js';
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+function resizeCanvas() {
+  const size = Math.min(window.innerWidth, window.innerHeight);
+  canvas.style.width = `${size}px`;
+  canvas.style.height = `${size}px`;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+let scale = 1;
+let pointers = [];
+
+function updatePinch(e) {
+  for (let i = 0; i < pointers.length; i++) {
+    if (pointers[i].pointerId === e.pointerId) {
+      pointers[i] = e;
+      break;
+    }
+  }
+  if (pointers.length === 2) {
+    const [p1, p2] = pointers;
+    const dx = p2.clientX - p1.clientX;
+    const dy = p2.clientY - p1.clientY;
+    const dist = Math.hypot(dx, dy);
+    if (pointers.lastDist) {
+      let s = scale * (dist / pointers.lastDist);
+      s = Math.max(0.5, Math.min(1.5, s));
+      scale = s;
+    }
+    pointers.lastDist = dist;
+  }
+}
+
+canvas.addEventListener('pointerdown', (e) => {
+  pointers.push(e);
+});
+canvas.addEventListener('pointermove', (e) => {
+  updatePinch(e);
+});
+canvas.addEventListener('pointerup', (e) => {
+  pointers = pointers.filter((p) => p.pointerId !== e.pointerId);
+  if (pointers.length < 2) delete pointers.lastDist;
+});
+canvas.addEventListener('pointercancel', (e) => {
+  pointers = pointers.filter((p) => p.pointerId !== e.pointerId);
+  if (pointers.length < 2) delete pointers.lastDist;
+});
+
 const TILE_SIZE = TILE;
 const castle = { x: 32, y: 32, hp: 100 };
 
@@ -98,6 +145,8 @@ function drawBullets() {
 
 function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.scale(scale, scale);
     drawGrid(ctx);
     drawBuildZone(ctx);
     drawTerrain(ctx);
@@ -166,6 +215,7 @@ function gameLoop() {
         ctx.fillStyle = 'white';
         ctx.fillText('Game Over', canvas.width / 2 - 40, canvas.height / 2);
     }
+    ctx.restore();
 }
 
 function setBuildMode(mode, button) {
