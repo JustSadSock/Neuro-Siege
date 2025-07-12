@@ -98,6 +98,7 @@ let hills = [];
 let water = [];
 let rocks = [];
 let deleteMode = false;
+let buildMode = null;
 
 generateMap();
 hills = getHills();
