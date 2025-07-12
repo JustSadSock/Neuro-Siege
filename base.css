@@ -51,6 +51,17 @@ button {
     cursor: pointer;
 }
 
+.start-fab {
+    background: #a00;
+    color: #fff;
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+}
+
 @media (min-width: 600px) {
     #controls {
         flex-direction: row;

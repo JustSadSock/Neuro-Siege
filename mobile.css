@@ -60,6 +60,18 @@
   font-size: 20px;
 }
 
+.start-fab {
+  background: #a00;
+  bottom: 16px;
+  color: #fff;
+  width: 56px;
+  height: 56px;
+}
+
+.group {
+  margin-top: 4px;
+}
+
 .sheet {
   position: fixed;
   bottom: 0;

@@ -6,9 +6,14 @@ export function setupUI(
   onDelete,
   onOpenGate,
   onCloseGate,
+  onSpawnSquad,
+  onShowTech,
 ) {
     const btn = document.getElementById('startBtn');
     btn.addEventListener('click', onStartWave);
+
+    const spawnBtn = document.getElementById('spawnSquadBtn');
+    if (spawnBtn) spawnBtn.addEventListener('click', onSpawnSquad);
 
     const buildBtn = document.getElementById('buildWallBtn');
     buildBtn.addEventListener('click', onBuildWall);
@@ -24,6 +29,8 @@ export function setupUI(
 
     document.getElementById('openGateBtn').addEventListener('click', onOpenGate);
     document.getElementById('closeGateBtn').addEventListener('click', onCloseGate);
+    const techBtn = document.getElementById('techBtn');
+    if (techBtn) techBtn.addEventListener('click', onShowTech);
 
     const sheetToggle = document.getElementById('sheetToggle');
     sheetToggle.addEventListener('click', () => {
@@ -41,10 +48,12 @@ export function setupUI(
         menu.classList.toggle('is-shown');
     });
 
-    const analyticsBtn = document.getElementById('analyticsBtn');
-    analyticsBtn.addEventListener('click', () => {
-        showStatsPanel('<p>Heatmap</p>');
-    });
+  const analyticsBtn = document.getElementById('analyticsBtn');
+  analyticsBtn.addEventListener('click', () => {
+      showStatsPanel('<p>Heatmap</p>');
+  });
+
+  openSheet();
 }
 
 export function showModal(id) {
@@ -106,4 +115,10 @@ export function showStatsPanel(html, onContinue) {
   btn.addEventListener('click', handler);
   close.addEventListener('click', handler);
   showModal('modalOverlay');
+}
+
+export function showTechTree() {
+  const html = `<h3>Tech Tree</h3>
+  <p>This is a placeholder technology tree. Unlock tech to build new units.</p>`;
+  showStatsPanel(html);
 }
