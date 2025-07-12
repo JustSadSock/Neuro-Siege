@@ -20,7 +20,6 @@ import {
   updateCastleHp,
   updateResources,
   showSummary,
-  initStartupPopup,
   showStatsPanel,
 } from './ui.js';
 import { drawHeatmap, recordEnemyPosition, resetHeatmap, getHotspot } from './stats.js';
@@ -274,5 +273,4 @@ setupUI(startWave,
     openGates,
 closeGates);
 updateResources(resources.stone, resources.wood, resources.gold, resources.essence);
-initStartupPopup();
 requestAnimationFrame(gameLoop);
