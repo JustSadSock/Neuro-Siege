@@ -53,16 +53,6 @@ export function showSummary(text, onContinue) {
     };
 }
 
-export function initStartupPopup() {
-  const popup = document.getElementById('startupPopup');
-  if (!popup) return;
-  const close = popup.querySelector('.close-btn');
-  const remove = () => popup.remove();
-  if (close) close.addEventListener('click', remove);
-  popup.addEventListener('click', remove);
-  popup.style.pointerEvents = 'auto';
-  setTimeout(remove, 3000);
-}
 
 export function showStatsPanel(html, onContinue) {
   const panel = document.getElementById('statsPanel');
