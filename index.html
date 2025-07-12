@@ -23,19 +23,27 @@
     <main id="gameArea">
         <canvas id="gameCanvas" width="640" height="640" tabindex="0"></canvas>
         <button id="analyticsBtn" class="fab" aria-label="Analytics">&#128202;</button>
+        <button id="startBtn" class="fab start-fab" aria-label="Start Wave">Start</button>
     </main>
-    <div id="bottomSheet" class="sheet">
+    <div id="bottomSheet" class="sheet is-open">
         <button class="sheet-handle" id="sheetToggle">^</button>
-        <div class="icon-row">
+        <div class="icon-row group">
             <button id="buildWallBtn" aria-label="Build Wall">&#128679;</button>
             <button id="buildGateBtn" aria-label="Build Gate">&#128682;</button>
+        </div>
+        <div class="icon-row group">
             <button id="buildTowerBtn" aria-label="Build Tower">&#127993;</button>
+        </div>
+        <div class="icon-row group">
+            <button id="spawnSquadBtn" aria-label="Spawn Squad">&#9876;</button>
+        </div>
+        <div class="icon-row group">
             <button id="deleteBtn" aria-label="Delete">&#9881;&#65039;</button>
         </div>
         <div class="group">
-            <button id="startBtn" aria-label="Start Wave">Start</button>
             <button id="openGateBtn" aria-label="Open Gates">Open</button>
             <button id="closeGateBtn" aria-label="Close Gates">Close</button>
+            <button id="techBtn" aria-label="Tech Tree">Tech</button>
         </div>
     </div>
     <div id="modalOverlay" class="modal is-hidden">

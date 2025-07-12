@@ -7,6 +7,8 @@ class Enemy {
         this.alive = true;
         this.hp = type === 'elite' ? 30 : 10;
         this.score = 0;
+        this.attackCooldown = 0;
+        this.atCastle = false;
     }
 
     takeDamage(dmg) {
@@ -20,6 +22,16 @@ class Enemy {
     update(castle, walls, gates, rocks, water) {
         if (!this.alive) return;
         this.score += 1 / 60;
+        if (this.atCastle) {
+            if (this.attackCooldown <= 0) {
+                castle.hp -= 1;
+                this.attackCooldown = 60;
+            } else {
+                this.attackCooldown -= 1;
+            }
+            return;
+        }
+
         const startX = Math.floor(this.x);
         const startY = Math.floor(this.y);
         const next = findNextStep(startX, startY, castle, walls, gates, rocks);
@@ -29,18 +41,13 @@ class Enemy {
         const dx = tx - this.x;
         const dy = ty - this.y;
         const dist = Math.hypot(dx, dy);
-            if (dist < 0.01) {
-                // reached center of cell
-                if (next.x === castle.x && next.y === castle.y) {
-                castle.hp -= 1;
-                this.score += 300;
-                this.alive = false;
-                return;
-                }
-            }
+        if (dist < 0.01 && next.x === castle.x && next.y === castle.y) {
+            this.atCastle = true;
+            return;
+        }
         if (dist > 0) {
             let speed = this.speed;
-            if(water && water.some(w=>w.x===Math.floor(this.x)&&w.y===Math.floor(this.y))) speed *= 0.5;
+            if (water && water.some(w => w.x === Math.floor(this.x) && w.y === Math.floor(this.y))) speed *= 0.5;
             const step = Math.min(speed, dist);
             this.x += (dx / dist) * step;
             this.y += (dy / dist) * step;
