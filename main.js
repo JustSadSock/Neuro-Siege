@@ -1,6 +1,7 @@
 import { drawGrid, drawTerrain, drawBuildZone, inBuildZone, expandBuildZone, generateMap, isBlocked, getHills, getRocks, getWater, removeTree } from './map.js';
 import { AIController } from './ai.js';
 import { setupUI, updateWave, updateCastleHp, updateResources, showSummary } from './ui.js';
+import { drawHeatmap, recordEnemyPosition, resetHeatmap } from './stats.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
