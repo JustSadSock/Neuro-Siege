@@ -32,15 +32,28 @@ export function setupUI(
     const techBtn = document.getElementById('techBtn');
     if (techBtn) techBtn.addEventListener('click', onShowTech);
 
-    const sheetToggle = document.getElementById('sheetToggle');
-    sheetToggle.addEventListener('click', () => {
-        const sheet = document.getElementById('bottomSheet');
-        if (sheet.classList.contains('is-open')) {
-            closeSheet();
-        } else {
-            openSheet();
-        }
-    });
+  const sheetToggle = document.getElementById('sheetToggle');
+  sheetToggle.addEventListener('click', () => {
+      const sheet = document.getElementById('bottomSheet');
+      if (sheet.classList.contains('is-open')) {
+          closeSheet();
+      } else {
+          openSheet();
+      }
+  });
+
+  const toggle = (id) => {
+      document.querySelectorAll('.submenu').forEach(el => el.classList.remove('is-shown'));
+      const el = document.getElementById(id);
+      if (el) el.classList.add('is-shown');
+  };
+
+  const groupWalls = document.getElementById('groupWalls');
+  const groupTowers = document.getElementById('groupTowers');
+  const groupArmy = document.getElementById('groupArmy');
+  groupWalls?.addEventListener('click', () => toggle('submenuWalls'));
+  groupTowers?.addEventListener('click', () => toggle('submenuTowers'));
+  groupArmy?.addEventListener('click', () => toggle('submenuArmy'));
 
     const menuBtn = document.getElementById('menuBtn');
     menuBtn.addEventListener('click', () => {

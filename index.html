@@ -29,21 +29,22 @@
     </main>
     <div id="bottomSheet" class="sheet">
         <button class="sheet-handle" id="sheetToggle">^</button>
-        <div class="icon-row group">
+        <div id="groupButtons" class="icon-row group">
+            <button id="groupWalls" aria-label="Walls">&#128719;</button>
+            <button id="groupTowers" aria-label="Defenses">&#127993;</button>
+            <button id="groupArmy" aria-label="Army">&#9876;</button>
+            <button id="deleteBtn" aria-label="Delete">&#9881;&#65039;</button>
+            <button id="techBtn" aria-label="Tech Tree">Tech</button>
+        </div>
+        <div id="submenuWalls" class="icon-row group submenu is-hidden">
             <button id="buildWallBtn" aria-label="Build Wall">&#128679;</button>
             <button id="buildGateBtn" aria-label="Build Gate">&#128682;</button>
         </div>
-        <div class="icon-row group">
+        <div id="submenuTowers" class="icon-row group submenu is-hidden">
             <button id="buildTowerBtn" aria-label="Build Tower">&#127993;</button>
         </div>
-        <div class="icon-row group">
+        <div id="submenuArmy" class="icon-row group submenu is-hidden">
             <button id="spawnSquadBtn" aria-label="Spawn Squad">&#9876;</button>
-        </div>
-        <div class="icon-row group">
-            <button id="deleteBtn" aria-label="Delete">&#9881;&#65039;</button>
-        </div>
-        <div class="group">
-            <button id="techBtn" aria-label="Tech Tree">Tech</button>
         </div>
     </div>
     <div id="modalOverlay" class="modal is-hidden">
