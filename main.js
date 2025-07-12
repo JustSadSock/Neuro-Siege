@@ -220,8 +220,8 @@ function gameLoop() {
             recordEnemyPosition(e.x, e.y);
             // tower attacks
             towers.forEach(t => {
-                const dx = e.x - t.x;
-                const dy = e.y - t.y;
+                const dx = (e.x + e.size / 2) - (t.x + 0.5);
+                const dy = (e.y + e.size / 2) - (t.y + 0.5);
                 const dist = Math.hypot(dx, dy);
                 if (dist <= t.range && t.cooldown <= 0) {
                     const normx = dx / dist;
@@ -230,8 +230,8 @@ function gameLoop() {
                     t.cooldown = t.rate;
                 }
             });
-            const cdx = e.x - castle.x;
-            const cdy = e.y - castle.y;
+            const cdx = (e.x + e.size / 2) - (castle.x + 0.5);
+            const cdy = (e.y + e.size / 2) - (castle.y + 0.5);
             const cdist = Math.hypot(cdx, cdy);
             if (cdist <= castle.range && castle.cooldown <= 0) {
                 const nx = cdx / cdist;
@@ -252,8 +252,8 @@ function gameLoop() {
                 bullets.splice(idx,1);
                 return;
             }
-            const dist = Math.hypot(b.x - e.x, b.y - e.y);
-            if (dist < 0.4) {
+            const dist = Math.hypot(b.x - (e.x + e.size / 2), b.y - (e.y + e.size / 2));
+            if (dist < e.size / 2 + 0.1) {
                 e.takeDamage(b.dmg || 5);
                 if (!e.alive) {
                     killsThisWave++;

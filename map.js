@@ -13,20 +13,30 @@ export function generateMap() {
     rocks = [];
     trees = [];
     hills = [];
-    for (let i = 0; i < 40; i++) {
-        const cell = randomCell();
-        if (!inBuildZone(cell.x, cell.y)) rocks.push(cell);
+    generateClusters(5, 8, rocks);
+    generateClusters(5, 10, trees);
+    generateClusters(3, 5, hills);
+    const hy = Math.floor(Math.random() * MAP_SIZE);
+    for (let x = 0; x < MAP_SIZE; x++) {
+        water.push({ x, y: hy });
     }
-    for (let i = 0; i < 30; i++) {
-        const cell = randomCell();
-        if (!inBuildZone(cell.x, cell.y)) trees.push(cell);
+    const vx = Math.floor(Math.random() * MAP_SIZE);
+    for (let y = 0; y < MAP_SIZE; y++) {
+        water.push({ x: vx, y });
     }
-    for (let i = 0; i < 15; i++) {
-        const cell = randomCell();
-        hills.push(cell);
+}
+
+function generateClusters(num, size, dest) {
+    for (let i = 0; i < num; i++) {
+        const center = randomCell();
+        for (let j = 0; j < size; j++) {
+            const cell = {
+                x: Math.min(Math.max(center.x + Math.floor(Math.random() * 3) - 1, 0), MAP_SIZE - 1),
+                y: Math.min(Math.max(center.y + Math.floor(Math.random() * 3) - 1, 0), MAP_SIZE - 1),
+            };
+            if (!inBuildZone(cell.x, cell.y)) dest.push(cell);
+        }
     }
-    const hy=Math.floor(Math.random()*MAP_SIZE);for(let x=0;x<MAP_SIZE;x++){water.push({x,y:hy});}
-    const vx=Math.floor(Math.random()*MAP_SIZE);for(let y=0;y<MAP_SIZE;y++){water.push({x:vx,y});}
 }
 
 function randomCell() {

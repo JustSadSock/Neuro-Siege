@@ -113,6 +113,14 @@
   width: 100%;
 }
 
+.submenu {
+  display: none;
+}
+
+.submenu.is-shown {
+  display: flex;
+}
+
 .sheet-handle {
   background: none;
   border: none;

@@ -1,11 +1,13 @@
 class Enemy {
-    constructor(x, y, type = 'normal') {
+    constructor(x, y, type = 'normal', size = 1) {
         this.x = x;
         this.y = y;
         this.type = type;
-        this.speed = type === 'elite' ? 0.4 : 0.5; // tiles per tick
+        this.size = size;
+        this.speed = type === 'elite' ? 0.25 : 0.3; // tiles per tick (slower)
         this.alive = true;
-        this.hp = type === 'elite' ? 30 : 10;
+        this.maxHp = type === 'elite' ? 30 : 10;
+        this.hp = this.maxHp;
         this.score = 0;
         this.attackCooldown = 0;
         this.atCastle = false;
@@ -55,8 +57,22 @@ class Enemy {
     }
 
     draw(ctx, tileSize) {
+        const sizePx = tileSize * this.size;
+        const cx = this.x * tileSize + sizePx / 2;
+        const cy = this.y * tileSize + sizePx / 2;
         ctx.fillStyle = this.type === 'elite' ? 'orange' : 'red';
-        ctx.fillRect(this.x * tileSize, this.y * tileSize, tileSize, tileSize);
+        ctx.beginPath();
+        ctx.arc(cx, cy, sizePx / 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // inner health bar
+        const barWidth = sizePx * 0.8;
+        const barHeight = 2;
+        const hpRatio = this.hp / this.maxHp;
+        ctx.fillStyle = 'black';
+        ctx.fillRect(cx - barWidth / 2, cy - barHeight / 2, barWidth, barHeight);
+        ctx.fillStyle = 'lime';
+        ctx.fillRect(cx - barWidth / 2, cy - barHeight / 2, barWidth * hpRatio, barHeight);
     }
 }
 
@@ -129,7 +145,12 @@ export class AIController {
             x = 63;
             y = Math.random() * 64;
         }
-        this.enemies.push(new Enemy(x, y, type));
+        // spawn four smaller enemies in a small cluster
+        for (let i = 0; i < 4; i++) {
+            const ox = (Math.random() - 0.5) * 0.5;
+            const oy = (Math.random() - 0.5) * 0.5;
+            this.enemies.push(new Enemy(x + ox, y + oy, type, 0.5));
+        }
     }
 
     update(castle, walls, gates, rocks, water) {
