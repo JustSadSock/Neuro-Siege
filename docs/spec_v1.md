@@ -10,8 +10,10 @@ This document briefly describes the modules used in the first working prototype.
 - **ai.js** – simple enemy logic with pathfinding.
 - **ui.js** – DOM helpers for HUD updates.
 - **economy.js** – applies wave rewards and tracks storage limits.
+- **buildings.js** – manages player structures and gate cooldown.
 - **stats.js** – collects a heatmap of enemy movement.
 - **troops.js** – placeholder for ally squads.
+- **helpers/** – small utility functions.
 
 ## API Overview
 - `generateMap()` – create random map data.
@@ -22,5 +24,8 @@ This document briefly describes the modules used in the first working prototype.
 - `applyWaveRewards(state)` – calculate resource gains after a wave.
 - `recordEnemyPosition(x, y)` – add to heatmap.
 - `drawHeatmap(ctx, tile)` – render heat overlay during build phase.
+- `addWall(x,y,res,wave)` – place a wall if resources allow.
+- `openGates()`/`closeGates()` – toggle gates respecting cooldown.
+- `showStatsPanel(html, cb)` – display end-wave analytics.
 
 These APIs are used by `main.js` to compose basic gameplay with waves, simple building and resource rewards.

@@ -1,4 +1,12 @@
-export function setupUI(onStartWave, onBuildWall, onBuildGate, onBuildTower, onDelete, onOpenGate, onCloseGate) {
+export function setupUI(
+  onStartWave,
+  onBuildWall,
+  onBuildGate,
+  onBuildTower,
+  onDelete,
+  onOpenGate,
+  onCloseGate,
+) {
     const btn = document.getElementById('startBtn');
     btn.addEventListener('click', onStartWave);
 
@@ -43,4 +51,27 @@ export function showSummary(text, onContinue) {
         overlay.classList.add('hidden');
         if (onContinue) onContinue();
     };
+}
+
+export function initStartupPopup() {
+  const popup = document.getElementById('startupPopup');
+  if (!popup) return;
+  const close = popup.querySelector('.close-btn');
+  const remove = () => popup.remove();
+  if (close) close.addEventListener('click', remove);
+  popup.addEventListener('click', remove);
+  popup.style.pointerEvents = 'auto';
+  setTimeout(remove, 3000);
+}
+
+export function showStatsPanel(html, onContinue) {
+  const panel = document.getElementById('statsPanel');
+  const container = document.getElementById('statsContent');
+  const btn = document.getElementById('statsContinue');
+  container.innerHTML = html;
+  panel.classList.remove('hidden');
+  btn.onclick = () => {
+    panel.classList.add('hidden');
+    if (onContinue) onContinue();
+  };
 }

@@ -1,0 +1,21 @@
+{
+  "name": "neuro-siege",
+  "version": "1.0.0",
+  "description": "A placeholder project for a strategy game currently in early planning stages. Documentation can be found in the [docs](docs/) directory, including a draft game description and a development plan.",
+  "main": "main.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "eslint": "^9.31.0",
+    "prettier": "^3.6.2"
+  }
+}

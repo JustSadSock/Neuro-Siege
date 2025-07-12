@@ -2,8 +2,30 @@ export const storage = {
   stone: 500,
   wood: 500,
   gold: 500,
-  essence: 100
+  essence: 100,
 };
+
+export const COSTS = {
+  wall: { stone: 10 },
+  gate: { stone: 20, wood: 10 },
+  tower: { wood: 20, gold: 50 },
+};
+
+export function canAfford(resources, cost) {
+  return Object.keys(cost).every((k) => resources[k] >= cost[k]);
+}
+
+export function spendResources(resources, cost) {
+  Object.keys(cost).forEach((k) => {
+    resources[k] -= cost[k];
+  });
+}
+
+export function refundResources(resources, cost) {
+  Object.keys(cost).forEach((k) => {
+    resources[k] += Math.floor(cost[k] / 2);
+  });
+}
 
 export function applyWaveRewards(state) {
   const { kills, wallsIntact, wallsTotal, wallDamagePercent, eliteKills, squads } = state;
