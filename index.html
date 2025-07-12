@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="startupPopup" class="popup"><div class="popup-content"><span class="close-btn">x</span>Welcome to NeuroSiege prototype</div></div>
     <div id="ui">
         <div id="controls">
             <button id="startBtn">Start Wave</button>
@@ -37,6 +38,10 @@
             <p id="summaryText"></p>
             <button id="continueBtn">Continue</button>
         </div>
+    </div>
+    <div id="statsPanel" class="hidden">
+        <div id="statsContent"></div>
+        <button id="statsContinue">Continue</button>
     </div>
 
     <script type="module" src="economy.js"></script>

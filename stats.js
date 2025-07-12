@@ -26,3 +26,17 @@ export function drawHeatmap(ctx, tileSize) {
     }
   }
 }
+
+export function getHotspot() {
+  const flat = heatmap.flat();
+  const max = Math.max(...flat);
+  const total = flat.reduce((a, b) => a + b, 0);
+  if (total === 0) return null;
+  if (max / total > 0.6) {
+    const idx = flat.indexOf(max);
+    const y = Math.floor(idx / 64);
+    const x = idx % 64;
+    return { x, y };
+  }
+  return null;
+}

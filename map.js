@@ -1,5 +1,5 @@
-const MAP_SIZE = 64; // 64x64 grid
-const TILE_SIZE = 10; // pixels
+export const MAP_SIZE = 64; // 64x64 grid
+export const TILE_SIZE = 10; // pixels
 let buildZoneStart = 22; // 20x20 center area -> start index 22 to 42 for 64 grid
 let buildZoneEnd = 42;
 
@@ -95,6 +95,10 @@ export function getRocks() {
 export function getWater() {
     return water.slice();
 }
+
+export function isWater(x, y) {
+    return water.some((w) => w.x === x && w.y === y);
+}
 export function removeTree(x, y) {
     const idx = trees.findIndex(t => t.x === x && t.y === y);
     if (idx !== -1) {
@@ -106,8 +110,8 @@ export function removeTree(x, y) {
 
 export function expandBuildZone() {
     if (buildZoneStart > 12) {
-        buildZoneStart -= 5;
-        buildZoneEnd += 5;
+        buildZoneStart = Math.max(12, buildZoneStart - 5);
+        buildZoneEnd = Math.min(MAP_SIZE - 12, buildZoneEnd + 5);
     }
 }
 

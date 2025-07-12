@@ -6,10 +6,12 @@ class Enemy {
         this.speed = type === 'elite' ? 0.4 : 0.5; // tiles per tick
         this.alive = true;
         this.hp = type === 'elite' ? 30 : 10;
+        this.score = 0;
     }
 
     takeDamage(dmg) {
         this.hp -= dmg;
+        this.score += 10;
         if (this.hp <= 0) {
             this.alive = false;
         }
@@ -17,6 +19,7 @@ class Enemy {
 
     update(castle, walls, gates, rocks, water) {
         if (!this.alive) return;
+        this.score += 1 / 60;
         const startX = Math.floor(this.x);
         const startY = Math.floor(this.y);
         const next = findNextStep(startX, startY, castle, walls, gates, rocks);
@@ -26,14 +29,15 @@ class Enemy {
         const dx = tx - this.x;
         const dy = ty - this.y;
         const dist = Math.hypot(dx, dy);
-        if (dist < 0.01) {
-            // reached center of cell
-            if (next.x === castle.x && next.y === castle.y) {
+            if (dist < 0.01) {
+                // reached center of cell
+                if (next.x === castle.x && next.y === castle.y) {
                 castle.hp -= 1;
+                this.score += 300;
                 this.alive = false;
                 return;
+                }
             }
-        }
         if (dist > 0) {
             let speed = this.speed;
             if(water && water.some(w=>w.x===Math.floor(this.x)&&w.y===Math.floor(this.y))) speed *= 0.5;
@@ -123,10 +127,13 @@ export class AIController {
 
     update(castle, walls, gates, rocks, water) {
         const killed = [];
-        this.enemies.forEach(e => {
+        this.enemies.forEach((e) => {
             const prev = e.alive;
             e.update(castle, walls, gates, rocks, water);
-            if (prev && !e.alive) killed.push(e);
+            if (prev && !e.alive) {
+                e.score += 100;
+                killed.push(e);
+            }
         });
         this.enemies = this.enemies.filter(e => e.alive);
         return killed;

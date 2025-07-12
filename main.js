@@ -1,19 +1,52 @@
-import { drawGrid, drawTerrain, drawBuildZone, inBuildZone, expandBuildZone, generateMap, isBlocked, getHills, getRocks, getWater, removeTree } from './map.js';
+import {
+  drawGrid,
+  drawTerrain,
+  drawBuildZone,
+  inBuildZone,
+  expandBuildZone,
+  generateMap,
+  isBlocked,
+  getHills,
+  getRocks,
+  getWater,
+  removeTree,
+  MAP_SIZE,
+  TILE_SIZE as TILE,
+} from './map.js';
 import { AIController } from './ai.js';
-import { setupUI, updateWave, updateCastleHp, updateResources, showSummary } from './ui.js';
-import { drawHeatmap, recordEnemyPosition, resetHeatmap } from './stats.js';
+import {
+  setupUI,
+  updateWave,
+  updateCastleHp,
+  updateResources,
+  showSummary,
+  initStartupPopup,
+  showStatsPanel,
+} from './ui.js';
+import { drawHeatmap, recordEnemyPosition, resetHeatmap, getHotspot } from './stats.js';
+import {
+  walls,
+  gates,
+  towers,
+  addWall,
+  addGate,
+  addTower,
+  removeBuilding,
+  openGates as openAllGates,
+  closeGates as closeAllGates,
+  tickCooldown,
+} from './buildings.js';
+import { applyWaveRewards } from './economy.js';
+import { squads, updateSquads } from './troops.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-const TILE_SIZE = 10;
+const TILE_SIZE = TILE;
 const castle = { x: 32, y: 32, hp: 100 };
 
 const resources = { stone: 100, wood: 150, gold: 200, essence: 0 };
 
-let walls = [];
-let gates = [];
-let towers = [];
 let bullets = [];
 let hills = [];
 let water = [];
@@ -24,7 +57,6 @@ generateMap();
 hills = getHills();
 rocks = getRocks();
 water = getWater();
-let gateToggleCooldown = 0;
 let essenceGainThisWave = 0;
 
 let wave = 0;
@@ -77,7 +109,7 @@ function gameLoop() {
     drawBullets();
     if (!running) drawHeatmap(ctx, TILE_SIZE);
     updateSquads();
-        if (gateToggleCooldown > 0) gateToggleCooldown--;
+        tickCooldown();
         const killed = ai.update(castle, walls, gates, rocks, water);
         killed.forEach(e => {
             if (e.type === 'elite') essenceGainThisWave += 1;
@@ -165,44 +197,26 @@ canvas.addEventListener('click', (e) => {
     const x = Math.floor((e.clientX - rect.left) / TILE_SIZE);
     const y = Math.floor((e.clientY - rect.top) / TILE_SIZE);
     if (deleteMode) {
-        let removed = false;
-        const wi = walls.findIndex(w => w.x === x && w.y === y);
-        if (wi !== -1) { walls.splice(wi,1); resources.stone += 5; removed=true; }
-        const gi = gates.findIndex(g => g.x === x && g.y === y);
-        if (gi !== -1) { gates.splice(gi,1); resources.stone += 10; resources.wood += 5; removed=true; }
-        const ti = towers.findIndex(t => t.x === x && t.y === y);
-        if (ti !== -1) { towers.splice(ti,1); resources.wood += 10; resources.gold += 25; removed=true; }
-        if (removed) updateResources(resources.stone, resources.wood, resources.gold, resources.essence);
+        if (removeBuilding(x, y, resources)) {
+            updateResources(resources.stone, resources.wood, resources.gold, resources.essence);
+        }
         return;
     }
 
     if (!buildMode) return;
     if (!inBuildZone(x, y) || isBlocked(x,y)) return;
-
     if (buildMode === 'wall') {
-        if (resources.stone >= 10 && !walls.some(w => w.x === x && w.y === y)) {
-            if (removeTree(x,y)) resources.wood += 5;
-            walls.push({ x, y, hp: 150 });
-            resources.stone -= 10;
-        }
+        if (removeTree(x, y)) resources.wood += 5;
+        addWall(x, y, resources, wave);
     } else if (buildMode === 'gate') {
-        if (resources.stone >= 20 && resources.wood >= 10 && !gates.some(g => g.x === x && g.y === y)) {
-            if (removeTree(x,y)) resources.wood += 5;
-            gates.push({ x, y, hp: 100, open: false });
-            resources.stone -= 20;
-            resources.wood -= 10;
-        }
+        if (removeTree(x, y)) resources.wood += 5;
+        addGate(x, y, resources);
     } else if (buildMode === 'tower') {
-        if (resources.wood >= 20 && resources.gold >= 50 && !towers.some(t => t.x === x && t.y === y)) {
-            if (removeTree(x,y)) resources.wood += 5;
-            const baseRange = 6;
-            const bonus = hills.some(h => h.x === x && h.y === y) ? 2 : 0;
-            towers.push({ x, y, range: baseRange + bonus, rate: 60, cooldown: 0 });
-            resources.wood -= 20;
-            resources.gold -= 50;
-        }
+        if (removeTree(x, y)) resources.wood += 5;
+        addTower(x, y, resources, wave);
     }
     updateResources(resources.stone, resources.wood, resources.gold, resources.essence);
+
 });
 
 function startWave() {
@@ -222,22 +236,31 @@ function startWave() {
 }
 
 function openGates() {
-    if (gateToggleCooldown > 0) return;
-    gates.forEach(g => g.open = true);
-    gateToggleCooldown = 600; // ~10 seconds at 60fps
+    openAllGates();
 }
 
 function closeGates() {
-    if (gateToggleCooldown > 0) return;
-    gates.forEach(g => g.open = false);
-    gateToggleCooldown = 600;
+    closeAllGates();
 }
 
 function endWave() {
     running = false;
-    const state = { kills: killsThisWave, wallsIntact: walls.length, wallsTotal: walls.length, wallDamagePercent: 0, eliteKills: essenceGainThisWave, squads: squads.length, resources };
+    const state = {
+        kills: killsThisWave,
+        wallsIntact: walls.length,
+        wallsTotal: walls.length,
+        wallDamagePercent: 0,
+        eliteKills: essenceGainThisWave,
+        squads: squads.length,
+        resources,
+    };
     applyWaveRewards(state);
-    showSummary(`Wave ${wave} complete!\nEnemies destroyed: ${killsThisWave}`, () => {
+    const hotspot = getHotspot();
+    let html = `<p>Kills: ${killsThisWave}</p>`;
+    if (hotspot) {
+        html += `<p>\u0443\u044f\u0437\u0432\u0438\u043c\u0430\u044F \u0437\u043e\u043d\u0430 (${hotspot.x},${hotspot.y})</p>`;
+    }
+    showStatsPanel(html, () => {
         updateResources(resources.stone, resources.wood, resources.gold, resources.essence);
         resetHeatmap();
     });
@@ -249,6 +272,7 @@ setupUI(startWave,
     () => setBuildMode('tower'),
     toggleDeleteMode,
     openGates,
-    closeGates);
+closeGates);
 updateResources(resources.stone, resources.wood, resources.gold, resources.essence);
+initStartupPopup();
 requestAnimationFrame(gameLoop);
