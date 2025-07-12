@@ -53,11 +53,13 @@
 .fab {
   position: absolute;
   right: 16px;
-  bottom: 88px;
   width: 44px;
   height: 44px;
   border-radius: 50%;
   font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .start-fab {
@@ -66,6 +68,22 @@
   color: #fff;
   width: 56px;
   height: 56px;
+}
+
+#openGateBtn {
+  bottom: 88px;
+  background: #0a0;
+  color: #fff;
+}
+
+#closeGateBtn {
+  bottom: 132px;
+  background: #a52a2a;
+  color: #fff;
+}
+
+#analyticsBtn {
+  bottom: 176px;
 }
 
 .group {
@@ -101,8 +119,3 @@
   color: #fff;
 }
 
-@media (min-width: 768px) {
-  #bottomSheet {
-    display: none;
-  }
-}

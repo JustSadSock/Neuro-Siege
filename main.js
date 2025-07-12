@@ -133,6 +133,14 @@ canvas.addEventListener('wheel', (e) => {
 }, { passive: false });
 
 const TILE_SIZE = TILE;
+const COLORS = {
+  castle: '#4466ff',
+  wall: '#999',
+  gateClosed: '#663300',
+  gateOpen: '#00aa00',
+  tower: '#cc00cc',
+  bullet: '#ffff00'
+};
 const castle = { x: 32, y: 32, hp: 100, range: 6, rate: 48, cooldown: 0, damage: 10 };
 
 const resources = { stone: 100, wood: 150, gold: 200, essence: 0 };
@@ -156,12 +164,12 @@ let running = false;
 let killsThisWave = 0;
 
 function drawCastle() {
-    ctx.fillStyle = 'blue';
+    ctx.fillStyle = COLORS.castle;
     ctx.fillRect(castle.x * TILE_SIZE, castle.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 }
 
 function drawWalls() {
-    ctx.fillStyle = 'gray';
+    ctx.fillStyle = COLORS.wall;
     walls.forEach(w => {
         ctx.fillRect(w.x * TILE_SIZE, w.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     });
@@ -169,20 +177,20 @@ function drawWalls() {
 
 function drawGates() {
     gates.forEach(g => {
-        ctx.fillStyle = g.open ? 'lightgreen' : 'brown';
+        ctx.fillStyle = g.open ? COLORS.gateOpen : COLORS.gateClosed;
         ctx.fillRect(g.x * TILE_SIZE, g.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     });
 }
 
 function drawTowers() {
-    ctx.fillStyle = 'purple';
+    ctx.fillStyle = COLORS.tower;
     towers.forEach(t => {
         ctx.fillRect(t.x * TILE_SIZE, t.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     });
 }
 
 function drawBullets() {
-    ctx.fillStyle = 'yellow';
+    ctx.fillStyle = COLORS.bullet;
     bullets.forEach(b => {
         ctx.fillRect(b.x * TILE_SIZE, b.y * TILE_SIZE, 2, 2);
     });
@@ -325,6 +333,7 @@ canvas.addEventListener('click', (e) => {
 });
 
 function startWave() {
+    if (running) return;
     buildMode = null;
     wave += 1;
     updateWave(wave);

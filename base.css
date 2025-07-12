@@ -94,3 +94,17 @@ button {
 .modal.is-shown {
     display: flex;
 }
+
+.tech-tree {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.tech-node {
+    background: #333;
+    border: 1px solid #666;
+    padding: 6px;
+    text-align: center;
+}
