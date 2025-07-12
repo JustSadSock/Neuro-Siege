@@ -23,9 +23,11 @@
     <main id="gameArea">
         <canvas id="gameCanvas" width="640" height="640" tabindex="0"></canvas>
         <button id="analyticsBtn" class="fab" aria-label="Analytics">&#128202;</button>
+        <button id="openGateBtn" class="fab gate-fab" aria-label="Open Gates">Open</button>
+        <button id="closeGateBtn" class="fab gate-fab" aria-label="Close Gates">Close</button>
         <button id="startBtn" class="fab start-fab" aria-label="Start Wave">Start</button>
     </main>
-    <div id="bottomSheet" class="sheet is-open">
+    <div id="bottomSheet" class="sheet">
         <button class="sheet-handle" id="sheetToggle">^</button>
         <div class="icon-row group">
             <button id="buildWallBtn" aria-label="Build Wall">&#128679;</button>
@@ -41,8 +43,6 @@
             <button id="deleteBtn" aria-label="Delete">&#9881;&#65039;</button>
         </div>
         <div class="group">
-            <button id="openGateBtn" aria-label="Open Gates">Open</button>
-            <button id="closeGateBtn" aria-label="Close Gates">Close</button>
             <button id="techBtn" aria-label="Tech Tree">Tech</button>
         </div>
     </div>

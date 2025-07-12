@@ -53,7 +53,6 @@ export function setupUI(
       showStatsPanel('<p>Heatmap</p>');
   });
 
-  openSheet();
 }
 
 export function showModal(id) {
@@ -118,7 +117,13 @@ export function showStatsPanel(html, onContinue) {
 }
 
 export function showTechTree() {
-  const html = `<h3>Tech Tree</h3>
-  <p>This is a placeholder technology tree. Unlock tech to build new units.</p>`;
+  const html = `
+    <h3>Tech Tree</h3>
+    <div class="tech-tree">
+      <div class="tech-node">Walls</div>
+      <div class="tech-node">Gates</div>
+      <div class="tech-node">Towers</div>
+    </div>
+  `;
   showStatsPanel(html);
 }
