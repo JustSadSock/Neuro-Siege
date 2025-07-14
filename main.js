@@ -127,9 +127,17 @@ canvas.addEventListener('pointercancel', (e) => {
 
 canvas.addEventListener('wheel', (e) => {
   e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const cx = rect.width / 2;
+  const cy = rect.height / 2;
+  const worldX = cx / (TILE_SIZE * scale) + offsetX;
+  const worldY = cy / (TILE_SIZE * scale) + offsetY;
   const delta = Math.sign(e.deltaY);
-  scale -= delta * 0.1;
-  scale = Math.max(0.5, Math.min(2, scale));
+  let s = scale - delta * 0.1;
+  s = Math.max(0.5, Math.min(2, s));
+  offsetX = worldX - cx / (TILE_SIZE * s);
+  offsetY = worldY - cy / (TILE_SIZE * s);
+  scale = s;
 }, { passive: false });
 
 const TILE_SIZE = TILE;
