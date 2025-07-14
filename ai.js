@@ -4,8 +4,10 @@ class Enemy {
         this.y = y;
         this.type = type;
         this.size = size;
-        // enemies move fairly quickly by default; slow them down
-        this.speed = type === 'elite' ? 0.125 : 0.15; // tiles per tick
+        // base movement speed
+        this.baseSpeed = type === 'elite' ? 0.125 : 0.15;
+        this.speed = this.baseSpeed; // current speed
+        this.slowTimer = 0;
         this.alive = true;
         this.maxHp = type === 'elite' ? 30 : 10;
         this.hp = this.maxHp;
@@ -25,6 +27,12 @@ class Enemy {
     update(castle, walls, gates, rocks, water) {
         if (!this.alive) return;
         this.score += 1 / 60;
+        if (this.slowTimer > 0) {
+            this.slowTimer -= 1;
+            this.speed = this.baseSpeed * 0.5;
+        } else {
+            this.speed = this.baseSpeed;
+        }
         if (this.atCastle) {
             if (this.attackCooldown <= 0) {
                 castle.hp -= 1;

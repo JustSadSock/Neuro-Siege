@@ -34,10 +34,12 @@ import {
   walls,
   gates,
   towers,
+  traps,
   hasBuilding,
   addWall,
   addGate,
   addTower,
+  addTrap,
   removeBuilding,
   openGates as openAllGates,
   closeGates as closeAllGates,
@@ -158,6 +160,7 @@ const COLORS = {
   gateClosed: '#663300',
   gateOpen: '#00aa00',
   tower: '#cc00cc',
+  trap: '#ffaa00',
   bullet: '#ffff00',
 };
 const castle = {
@@ -221,6 +224,13 @@ function drawTowers() {
   });
 }
 
+function drawTraps() {
+  ctx.fillStyle = COLORS.trap;
+  traps.forEach((t) => {
+    ctx.fillRect(t.x * TILE_SIZE + TILE_SIZE / 4, t.y * TILE_SIZE + TILE_SIZE / 4, TILE_SIZE / 2, TILE_SIZE / 2);
+  });
+}
+
 function drawBullets() {
   ctx.fillStyle = COLORS.bullet;
   bullets.forEach((b) => {
@@ -239,6 +249,7 @@ function gameLoop() {
   drawCastle();
   drawWalls();
   drawGates();
+  drawTraps();
   drawTowers();
   drawBullets();
   if (!running) drawHeatmap(ctx, TILE_SIZE);
@@ -250,6 +261,11 @@ function gameLoop() {
   });
   ai.enemies.forEach((e) => {
     recordEnemyPosition(e.x, e.y);
+    traps.forEach((t) => {
+      if (Math.floor(e.x) === t.x && Math.floor(e.y) === t.y) {
+        e.slowTimer = 120;
+      }
+    });
     // tower attacks
     towers.forEach((t) => {
       const dx = e.x + e.size / 2 - (t.x + 0.5);
@@ -341,6 +357,7 @@ function setBuildMode(mode) {
   const wallBtn = document.getElementById('buildWallBtn');
   const gateBtn = document.getElementById('buildGateBtn');
   const towerBtn = document.getElementById('buildTowerBtn');
+  const trapBtn = document.getElementById('buildTrapBtn');
   const deleteBtn = document.getElementById('deleteBtn');
   if (buildMode === mode) {
     buildMode = null;
@@ -351,6 +368,7 @@ function setBuildMode(mode) {
   wallBtn.classList.toggle('active', buildMode === 'wall');
   gateBtn.classList.toggle('active', buildMode === 'gate');
   towerBtn.classList.toggle('active', buildMode === 'tower');
+  trapBtn.classList.toggle('active', buildMode === 'trap');
   deleteBtn.classList.remove('active');
 }
 
@@ -358,12 +376,14 @@ function toggleDeleteMode() {
   const wallBtn = document.getElementById('buildWallBtn');
   const gateBtn = document.getElementById('buildGateBtn');
   const towerBtn = document.getElementById('buildTowerBtn');
+  const trapBtn = document.getElementById('buildTrapBtn');
   const deleteBtn = document.getElementById('deleteBtn');
   buildMode = null;
   deleteMode = !deleteMode;
   wallBtn.classList.remove('active');
   gateBtn.classList.remove('active');
   towerBtn.classList.remove('active');
+  trapBtn.classList.remove('active');
   deleteBtn.classList.toggle('active', deleteMode);
 }
 
@@ -421,6 +441,12 @@ function handleBuildEvent(e) {
     if (removeTree(x, y)) resources.wood += 5;
     if (!addTower(x, y, resources, wave)) {
       showToast('Cannot build tower');
+      return;
+    }
+  } else if (buildMode === 'trap') {
+    if (removeTree(x, y)) resources.wood += 5;
+    if (!addTrap(x, y, resources)) {
+      showToast('Cannot build trap');
       return;
     }
   }
@@ -501,6 +527,7 @@ setupUI(
   () => setBuildMode('wall'),
   () => setBuildMode('gate'),
   () => setBuildMode('tower'),
+  () => setBuildMode('trap'),
   toggleDeleteMode,
   openGates,
   closeGates,

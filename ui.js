@@ -3,6 +3,7 @@ export function setupUI(
   onBuildWall,
   onBuildGate,
   onBuildTower,
+  onBuildTrap,
   onDelete,
   onOpenGate,
   onCloseGate,
@@ -21,8 +22,11 @@ export function setupUI(
     const gateBtn = document.getElementById('buildGateBtn');
     gateBtn.addEventListener('click', onBuildGate);
 
-    const towerBtn = document.getElementById('buildTowerBtn');
-    towerBtn.addEventListener('click', onBuildTower);
+  const towerBtn = document.getElementById('buildTowerBtn');
+  towerBtn.addEventListener('click', onBuildTower);
+
+  const trapBtn = document.getElementById('buildTrapBtn');
+  if (trapBtn) trapBtn.addEventListener('click', onBuildTrap);
 
     const deleteBtn = document.getElementById('deleteBtn');
     deleteBtn.addEventListener('click', onDelete);
