@@ -1,10 +1,23 @@
-import { COSTS, canAfford, spendResources, refundResources } from './economy.js';
+import {
+  COSTS,
+  canAfford,
+  spendResources,
+  refundResources,
+} from './economy.js';
 
 export const walls = [];
 export const gates = [];
 export const towers = [];
 
 export const gateCooldown = { value: 0 };
+
+export function hasBuilding(x, y) {
+  return (
+    walls.some((w) => w.x === x && w.y === y) ||
+    gates.some((g) => g.x === x && g.y === y) ||
+    towers.some((t) => t.x === x && t.y === y)
+  );
+}
 
 export function canPlaceWall(wave) {
   return walls.length < 40 + 10 * wave;
@@ -30,7 +43,15 @@ export function addGate(x, y, resources) {
 
 export function addTower(x, y, resources, wave) {
   if (!canPlaceTower(wave) || !canAfford(resources, COSTS.tower)) return false;
-  towers.push({ x, y, level: 1, range: 4, rate: 72, cooldown: 0, type: 'crossbow' });
+  towers.push({
+    x,
+    y,
+    level: 1,
+    range: 4,
+    rate: 72,
+    cooldown: 0,
+    type: 'crossbow',
+  });
   spendResources(resources, COSTS.tower);
   return true;
 }
