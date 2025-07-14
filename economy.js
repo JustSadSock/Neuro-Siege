@@ -9,6 +9,7 @@ export const COSTS = {
   wall: { stone: 10 },
   gate: { stone: 20, wood: 10 },
   tower: { wood: 20, gold: 50 },
+  trap: { wood: 15, stone: 5 },
 };
 
 export function canAfford(resources, cost) {

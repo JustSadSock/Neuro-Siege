@@ -8,6 +8,7 @@ import {
 export const walls = [];
 export const gates = [];
 export const towers = [];
+export const traps = [];
 
 export const gateCooldown = { value: 0 };
 
@@ -15,7 +16,8 @@ export function hasBuilding(x, y) {
   return (
     walls.some((w) => w.x === x && w.y === y) ||
     gates.some((g) => g.x === x && g.y === y) ||
-    towers.some((t) => t.x === x && t.y === y)
+    towers.some((t) => t.x === x && t.y === y) ||
+    traps.some((t) => t.x === x && t.y === y)
   );
 }
 
@@ -56,6 +58,13 @@ export function addTower(x, y, resources, wave) {
   return true;
 }
 
+export function addTrap(x, y, resources) {
+  if (!canAfford(resources, COSTS.trap)) return false;
+  traps.push({ x, y });
+  spendResources(resources, COSTS.trap);
+  return true;
+}
+
 export function removeBuilding(x, y, resources) {
   let idx = walls.findIndex((w) => w.x === x && w.y === y);
   if (idx !== -1) {
@@ -73,6 +82,12 @@ export function removeBuilding(x, y, resources) {
   if (idx !== -1) {
     towers.splice(idx, 1);
     refundResources(resources, COSTS.tower);
+    return true;
+  }
+  idx = traps.findIndex((t) => t.x === x && t.y === y);
+  if (idx !== -1) {
+    traps.splice(idx, 1);
+    refundResources(resources, COSTS.trap);
     return true;
   }
   return false;

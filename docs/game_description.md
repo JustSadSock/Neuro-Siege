@@ -10,6 +10,10 @@
 
 ## Buildings
 - List and purpose of the main building types players can construct or encounter.
+- **Wall** – cheap barrier that blocks enemies.
+- **Gate** – allows units to pass when opened but blocks enemies when closed.
+- **Tower** – ranged defense that shoots at approaching enemies.
+- **Trap** – slows enemies for a short time when they step on it.
 
 ## Resources
 - Types of resources available, how to gather them, and their uses.
