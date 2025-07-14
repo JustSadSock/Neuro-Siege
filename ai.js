@@ -4,7 +4,8 @@ class Enemy {
         this.y = y;
         this.type = type;
         this.size = size;
-        this.speed = type === 'elite' ? 0.25 : 0.3; // tiles per tick (slower)
+        // enemies move fairly quickly by default; slow them down
+        this.speed = type === 'elite' ? 0.125 : 0.15; // tiles per tick
         this.alive = true;
         this.maxHp = type === 'elite' ? 30 : 10;
         this.hp = this.maxHp;

@@ -13,37 +13,40 @@ export function generateMap() {
     rocks = [];
     trees = [];
     hills = [];
-    generateClusters(5, 8, rocks);
-    generateClusters(5, 10, trees);
-    generateClusters(3, 5, hills);
-    const hy = Math.floor(Math.random() * MAP_SIZE);
-    for (let x = 0; x < MAP_SIZE; x++) {
-        water.push({ x, y: hy });
-    }
-    const vx = Math.floor(Math.random() * MAP_SIZE);
-    for (let y = 0; y < MAP_SIZE; y++) {
-        water.push({ x: vx, y });
-    }
-}
 
-function generateClusters(num, size, dest) {
-    for (let i = 0; i < num; i++) {
-        const center = randomCell();
-        for (let j = 0; j < size; j++) {
-            const cell = {
-                x: Math.min(Math.max(center.x + Math.floor(Math.random() * 3) - 1, 0), MAP_SIZE - 1),
-                y: Math.min(Math.max(center.y + Math.floor(Math.random() * 3) - 1, 0), MAP_SIZE - 1),
-            };
-            if (!inBuildZone(cell.x, cell.y)) dest.push(cell);
+    const base = Array.from({ length: MAP_SIZE }, () =>
+        Array.from({ length: MAP_SIZE }, () => Math.random())
+    );
+
+    for (let y = 1; y < MAP_SIZE - 1; y++) {
+        for (let x = 1; x < MAP_SIZE - 1; x++) {
+            let sum = 0;
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    sum += base[y + dy][x + dx];
+                }
+            }
+            base[y][x] = sum / 9;
+        }
+    }
+
+    for (let y = 0; y < MAP_SIZE; y++) {
+        for (let x = 0; x < MAP_SIZE; x++) {
+            if (inBuildZone(x, y)) continue;
+            const v = base[y][x];
+            if (v < 0.2) {
+                water.push({ x, y });
+            } else if (v < 0.35) {
+                rocks.push({ x, y });
+            } else if (v < 0.6) {
+                trees.push({ x, y });
+            } else if (v < 0.75) {
+                hills.push({ x, y });
+            }
         }
     }
 }
 
-function randomCell() {
-    const x = Math.floor(Math.random() * MAP_SIZE);
-    const y = Math.floor(Math.random() * MAP_SIZE);
-    return { x, y };
-}
 
 export function drawGrid(ctx) {
     ctx.strokeStyle = '#333';
