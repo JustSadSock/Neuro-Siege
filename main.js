@@ -371,19 +371,17 @@ function handleBuildEvent(e) {
   if (running) return;
   const rect = canvas.getBoundingClientRect();
   const clientX =
-    e.offsetX !== undefined
-      ? e.offsetX
-      : e.touches
-        ? e.touches[0].clientX - rect.left
-        : e.clientX - rect.left;
+    e.touches && e.touches[0]
+      ? e.touches[0].clientX - rect.left
+      : e.clientX - rect.left;
   const clientY =
-    e.offsetY !== undefined
-      ? e.offsetY
-      : e.touches
-        ? e.touches[0].clientY - rect.top
-        : e.clientY - rect.top;
-  const x = Math.floor(clientX / (TILE_SIZE * scale) + offsetX);
-  const y = Math.floor(clientY / (TILE_SIZE * scale) + offsetY);
+    e.touches && e.touches[0]
+      ? e.touches[0].clientY - rect.top
+      : e.clientY - rect.top;
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const x = Math.floor(clientX * scaleX / (TILE_SIZE * scale) + offsetX);
+  const y = Math.floor(clientY * scaleY / (TILE_SIZE * scale) + offsetY);
   if (deleteMode) {
     if (removeBuilding(x, y, resources)) {
       updateResources(
