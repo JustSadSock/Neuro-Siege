@@ -95,6 +95,16 @@ export function closeSheet() {
   document.getElementById('bottomSheet')?.classList.remove('is-open');
 }
 
+export function showToast(msg) {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.remove('is-hidden');
+  setTimeout(() => {
+    el.classList.add('is-hidden');
+  }, 2000);
+}
+
 export function updateWave(wave) {
     document.getElementById('waveCounter').textContent = `Wave: ${wave}`;
 }

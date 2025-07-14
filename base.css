@@ -129,3 +129,24 @@ button {
     align-items: center;
     justify-content: center;
 }
+
+.fab-small.active {
+    background: #777;
+}
+
+.toast {
+    position: fixed;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    z-index: 100;
+}
+
+.toast.is-hidden {
+    display: none;
+}

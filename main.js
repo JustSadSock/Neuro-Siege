@@ -22,6 +22,7 @@ import {
   showSummary,
   showStatsPanel,
   showTechTree,
+  showToast,
 } from './ui.js';
 import {
   drawHeatmap,
@@ -336,31 +337,34 @@ function gameLoop() {
   ctx.restore();
 }
 
-function setBuildMode(mode, button) {
+function setBuildMode(mode) {
+  const wallBtn = document.getElementById('buildWallBtn');
+  const gateBtn = document.getElementById('buildGateBtn');
+  const towerBtn = document.getElementById('buildTowerBtn');
+  const deleteBtn = document.getElementById('deleteBtn');
   if (buildMode === mode) {
     buildMode = null;
   } else {
     buildMode = mode;
   }
   deleteMode = false;
-  document.getElementById('buildWallBtn').textContent =
-    buildMode === 'wall' ? 'Cancel' : 'Build Wall';
-  document.getElementById('buildGateBtn').textContent =
-    buildMode === 'gate' ? 'Cancel' : 'Build Gate';
-  document.getElementById('buildTowerBtn').textContent =
-    buildMode === 'tower' ? 'Cancel' : 'Build Tower';
-  document.getElementById('deleteBtn').textContent = 'Delete';
+  wallBtn.classList.toggle('active', buildMode === 'wall');
+  gateBtn.classList.toggle('active', buildMode === 'gate');
+  towerBtn.classList.toggle('active', buildMode === 'tower');
+  deleteBtn.classList.remove('active');
 }
 
 function toggleDeleteMode() {
+  const wallBtn = document.getElementById('buildWallBtn');
+  const gateBtn = document.getElementById('buildGateBtn');
+  const towerBtn = document.getElementById('buildTowerBtn');
+  const deleteBtn = document.getElementById('deleteBtn');
   buildMode = null;
   deleteMode = !deleteMode;
-  document.getElementById('buildWallBtn').textContent = 'Build Wall';
-  document.getElementById('buildGateBtn').textContent = 'Build Gate';
-  document.getElementById('buildTowerBtn').textContent = 'Build Tower';
-  document.getElementById('deleteBtn').textContent = deleteMode
-    ? 'Cancel'
-    : 'Delete';
+  wallBtn.classList.remove('active');
+  gateBtn.classList.remove('active');
+  towerBtn.classList.remove('active');
+  deleteBtn.classList.toggle('active', deleteMode);
 }
 
 function handleBuildEvent(e) {
@@ -399,16 +403,28 @@ function handleBuildEvent(e) {
     hasBuilding(x, y) ||
     (x === castle.x && y === castle.y)
   )
+  {
+    showToast('Cannot build here');
     return;
+  }
   if (buildMode === 'wall') {
     if (removeTree(x, y)) resources.wood += 5;
-    addWall(x, y, resources, wave);
+    if (!addWall(x, y, resources, wave)) {
+      showToast('Cannot build wall');
+      return;
+    }
   } else if (buildMode === 'gate') {
     if (removeTree(x, y)) resources.wood += 5;
-    addGate(x, y, resources);
+    if (!addGate(x, y, resources)) {
+      showToast('Cannot build gate');
+      return;
+    }
   } else if (buildMode === 'tower') {
     if (removeTree(x, y)) resources.wood += 5;
-    addTower(x, y, resources, wave);
+    if (!addTower(x, y, resources, wave)) {
+      showToast('Cannot build tower');
+      return;
+    }
   }
   updateResources(
     resources.stone,
