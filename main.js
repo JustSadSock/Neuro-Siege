@@ -84,7 +84,7 @@ function updatePinch(e) {
     if (pointers.lastCenter) {
       const dxC = cx - pointers.lastCenter.x;
       const dyC = cy - pointers.lastCenter.y;
-      offsetX -= dxC / (TILE_SIZE * scale);
+      offsetX -= dxC / (TILE_SIZE * 0.75 * scale);
       offsetY -= dyC / (TILE_SIZE * scale);
     }
     if (pointers.lastDist) {
@@ -109,7 +109,7 @@ canvas.addEventListener('pointermove', (e) => {
   if (isPanning) {
     const dx = e.clientX - lastPan.x;
     const dy = e.clientY - lastPan.y;
-    offsetX -= dx / (TILE_SIZE * scale);
+    offsetX -= dx / (TILE_SIZE * 0.75 * scale);
     offsetY -= dy / (TILE_SIZE * scale);
     lastPan = { x: e.clientX, y: e.clientY };
     return;
@@ -142,12 +142,12 @@ canvas.addEventListener(
     const rect = canvas.getBoundingClientRect();
     const cx = rect.width / 2;
     const cy = rect.height / 2;
-    const worldX = cx / (TILE_SIZE * scale) + offsetX;
+    const worldX = cx / (TILE_SIZE * 0.75 * scale) + offsetX;
     const worldY = cy / (TILE_SIZE * scale) + offsetY;
     const delta = Math.sign(e.deltaY);
     let s = scale - delta * 0.1;
     s = Math.max(0.5, Math.min(2, s));
-    offsetX = worldX - cx / (TILE_SIZE * s);
+    offsetX = worldX - cx / (TILE_SIZE * 0.75 * s);
     offsetY = worldY - cy / (TILE_SIZE * s);
     scale = s;
   },
@@ -227,7 +227,9 @@ function drawBullets() {
   bullets.forEach((b) => {
     ctx.fillStyle = COLORS.bullet;
     ctx.beginPath();
-    ctx.arc(b.x * TILE_SIZE + TILE_SIZE / 2, b.y * TILE_SIZE + TILE_SIZE / 2, 2, 0, Math.PI * 2);
+    const px = b.x * TILE_SIZE * 0.75 + TILE_SIZE / 2;
+    const py = b.y * TILE_SIZE + (Math.floor(b.x) % 2) * (TILE_SIZE / 2) + TILE_SIZE / 2;
+    ctx.arc(px, py, 2, 0, Math.PI * 2);
     ctx.fill();
   });
 }
@@ -236,7 +238,7 @@ function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
   ctx.scale(scale, scale);
-  ctx.translate(-offsetX * TILE_SIZE, -offsetY * TILE_SIZE);
+  ctx.translate(-offsetX * TILE_SIZE * 0.75, -offsetY * TILE_SIZE);
   drawGrid(ctx);
   drawBuildZone(ctx);
   drawTerrain(ctx);
@@ -394,8 +396,10 @@ function handleBuildEvent(e) {
       : e.clientY - rect.top;
   const scaleX = canvas.width / rect.width;
   const scaleY = canvas.height / rect.height;
-  const x = Math.floor(clientX * scaleX / (TILE_SIZE * scale) + offsetX);
-  const y = Math.floor(clientY * scaleY / (TILE_SIZE * scale) + offsetY);
+  const rawX = clientX * scaleX / (TILE_SIZE * 0.75 * scale) + offsetX;
+  const x = Math.floor(rawX);
+  const rawY = clientY * scaleY / (TILE_SIZE * scale) + offsetY - (x % 2) * 0.5;
+  const y = Math.floor(rawY);
   if (deleteMode) {
     if (removeBuilding(x, y, resources)) {
       updateResources(

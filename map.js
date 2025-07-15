@@ -48,8 +48,8 @@ export function generateMap() {
 
 
 function drawHex(ctx, x, y, fillStyle) {
-    const px = x * TILE_SIZE;
-    const py = y * TILE_SIZE;
+    const px = x * TILE_SIZE * 0.75;
+    const py = y * TILE_SIZE + (x % 2) * (TILE_SIZE / 2);
     ctx.beginPath();
     ctx.moveTo(px + TILE_SIZE * 0.25, py);
     ctx.lineTo(px + TILE_SIZE * 0.75, py);

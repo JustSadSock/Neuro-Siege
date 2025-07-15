@@ -67,8 +67,10 @@ class Enemy {
 
     draw(ctx, tileSize) {
         const sizePx = tileSize * this.size;
-        const cx = this.x * tileSize + sizePx / 2;
-        const cy = this.y * tileSize + sizePx / 2;
+        const px = this.x * tileSize * 0.75;
+        const py = this.y * tileSize + (Math.floor(this.x) % 2) * (tileSize / 2);
+        const cx = px + sizePx / 2;
+        const cy = py + sizePx / 2;
         ctx.fillStyle = this.type === 'elite' ? 'orange' : 'red';
         ctx.beginPath();
         ctx.arc(cx, cy, sizePx / 2, 0, Math.PI * 2);
