@@ -32,7 +32,6 @@ export function generateMap() {
 
     for (let y = 0; y < MAP_SIZE; y++) {
         for (let x = 0; x < MAP_SIZE; x++) {
-            if (inBuildZone(x, y)) continue;
             const v = base[y][x];
             if (v < 0.2) {
                 water.push({ x, y });
@@ -48,40 +47,47 @@ export function generateMap() {
 }
 
 
+function drawHex(ctx, x, y, fillStyle) {
+    const px = x * TILE_SIZE;
+    const py = y * TILE_SIZE;
+    ctx.beginPath();
+    ctx.moveTo(px + TILE_SIZE * 0.25, py);
+    ctx.lineTo(px + TILE_SIZE * 0.75, py);
+    ctx.lineTo(px + TILE_SIZE, py + TILE_SIZE * 0.5);
+    ctx.lineTo(px + TILE_SIZE * 0.75, py + TILE_SIZE);
+    ctx.lineTo(px + TILE_SIZE * 0.25, py + TILE_SIZE);
+    ctx.lineTo(px, py + TILE_SIZE * 0.5);
+    ctx.closePath();
+    if (fillStyle) {
+        ctx.fillStyle = fillStyle;
+        ctx.fill();
+    }
+    ctx.stroke();
+}
+
 export function drawGrid(ctx) {
     ctx.strokeStyle = '#333';
-    for (let x = 0; x <= MAP_SIZE; x++) {
-        ctx.beginPath();
-        ctx.moveTo(x * TILE_SIZE, 0);
-        ctx.lineTo(x * TILE_SIZE, MAP_SIZE * TILE_SIZE);
-        ctx.stroke();
-    }
-    for (let y = 0; y <= MAP_SIZE; y++) {
-        ctx.beginPath();
-        ctx.moveTo(0, y * TILE_SIZE);
-        ctx.lineTo(MAP_SIZE * TILE_SIZE, y * TILE_SIZE);
-        ctx.stroke();
+    for (let y = 0; y < MAP_SIZE; y++) {
+        for (let x = 0; x < MAP_SIZE; x++) {
+            drawHex(ctx, x, y);
+        }
     }
 }
 
 export function drawBuildZone(ctx) {
-    const width = (buildZoneEnd - buildZoneStart) * TILE_SIZE;
-    const height = width;
-    ctx.fillStyle = 'rgba(0, 128, 0, 0.1)';
-    ctx.fillRect(buildZoneStart * TILE_SIZE, buildZoneStart * TILE_SIZE, width, height);
-    ctx.strokeStyle = 'rgba(0, 255, 0, 0.5)';
-    ctx.strokeRect(buildZoneStart * TILE_SIZE, buildZoneStart * TILE_SIZE, width, height);
+    ctx.strokeStyle = 'rgba(0,255,0,0.5)';
+    for (let y = buildZoneStart; y < buildZoneEnd; y++) {
+        for (let x = buildZoneStart; x < buildZoneEnd; x++) {
+            drawHex(ctx, x, y, 'rgba(0,128,0,0.1)');
+        }
+    }
 }
 
 export function drawTerrain(ctx) {
-    ctx.fillStyle = '#555';
-    rocks.forEach(r => ctx.fillRect(r.x * TILE_SIZE, r.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
-    ctx.fillStyle = "#03a9f4";
-    water.forEach(w => ctx.fillRect(w.x * TILE_SIZE, w.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
-    ctx.fillStyle = '#075604';
-    trees.forEach(t => ctx.fillRect(t.x * TILE_SIZE, t.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
-    ctx.fillStyle = '#444';
-    hills.forEach(h => ctx.fillRect(h.x * TILE_SIZE, h.y * TILE_SIZE, TILE_SIZE, TILE_SIZE));
+    rocks.forEach(r => drawHex(ctx, r.x, r.y, '#555'));
+    water.forEach(w => drawHex(ctx, w.x, w.y, '#03a9f4'));
+    trees.forEach(t => drawHex(ctx, t.x, t.y, '#075604'));
+    hills.forEach(h => drawHex(ctx, h.x, h.y, '#444'));
 }
 
 export function inBuildZone(x, y) {
@@ -131,3 +137,5 @@ export function expandBuildZone() {
 export function getBuildZone() {
     return { start: buildZoneStart, end: buildZoneEnd };
 }
+
+export { drawHex };
