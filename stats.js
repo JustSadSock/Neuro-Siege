@@ -1,24 +1,24 @@
-import { drawHex } from './map.js';
+import { drawHex, MAP_SIZE } from './map.js';
 
-export let heatmap = Array.from({ length: 64 }, () => Array(64).fill(0));
+export let heatmap = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill(0));
 
 export function recordEnemyPosition(x, y) {
   const cx = Math.floor(x);
   const cy = Math.floor(y);
-  if (cx >= 0 && cy >= 0 && cx < 64 && cy < 64) {
+  if (cx >= 0 && cy >= 0 && cx < MAP_SIZE && cy < MAP_SIZE) {
     heatmap[cy][cx] += 1;
   }
 }
 
 export function resetHeatmap() {
-  heatmap = Array.from({ length: 64 }, () => Array(64).fill(0));
+  heatmap = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill(0));
 }
 
 export function drawHeatmap(ctx) {
   const max = Math.max(...heatmap.flat());
   if (max === 0) return;
-  for (let y = 0; y < 64; y++) {
-    for (let x = 0; x < 64; x++) {
+  for (let y = 0; y < MAP_SIZE; y++) {
+    for (let x = 0; x < MAP_SIZE; x++) {
       const val = heatmap[y][x];
       if (val > 0) {
         const intensity = val / max;
@@ -35,8 +35,8 @@ export function getHotspot() {
   if (total === 0) return null;
   if (max / total > 0.6) {
     const idx = flat.indexOf(max);
-    const y = Math.floor(idx / 64);
-    const x = idx % 64;
+    const y = Math.floor(idx / MAP_SIZE);
+    const x = idx % MAP_SIZE;
     return { x, y };
   }
   return null;
