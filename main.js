@@ -12,6 +12,7 @@ import {
   removeTree,
   MAP_SIZE,
   TILE_SIZE as TILE,
+  drawHex,
 } from './map.js';
 import { AIController } from './ai.js';
 import {
@@ -195,46 +196,39 @@ let killsThisWave = 0;
 
 function drawCastle() {
   ctx.fillStyle = COLORS.castle;
-  ctx.fillRect(
-    castle.x * TILE_SIZE,
-    castle.y * TILE_SIZE,
-    TILE_SIZE,
-    TILE_SIZE,
-  );
+  drawHex(ctx, castle.x, castle.y, COLORS.castle);
 }
 
 function drawWalls() {
-  ctx.fillStyle = COLORS.wall;
   walls.forEach((w) => {
-    ctx.fillRect(w.x * TILE_SIZE, w.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    drawHex(ctx, w.x, w.y, COLORS.wall);
   });
 }
 
 function drawGates() {
   gates.forEach((g) => {
-    ctx.fillStyle = g.open ? COLORS.gateOpen : COLORS.gateClosed;
-    ctx.fillRect(g.x * TILE_SIZE, g.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    drawHex(ctx, g.x, g.y, g.open ? COLORS.gateOpen : COLORS.gateClosed);
   });
 }
 
 function drawTowers() {
-  ctx.fillStyle = COLORS.tower;
   towers.forEach((t) => {
-    ctx.fillRect(t.x * TILE_SIZE, t.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    drawHex(ctx, t.x, t.y, COLORS.tower);
   });
 }
 
 function drawTraps() {
-  ctx.fillStyle = COLORS.trap;
   traps.forEach((t) => {
-    ctx.fillRect(t.x * TILE_SIZE + TILE_SIZE / 4, t.y * TILE_SIZE + TILE_SIZE / 4, TILE_SIZE / 2, TILE_SIZE / 2);
+    drawHex(ctx, t.x, t.y, COLORS.trap);
   });
 }
 
 function drawBullets() {
-  ctx.fillStyle = COLORS.bullet;
   bullets.forEach((b) => {
-    ctx.fillRect(b.x * TILE_SIZE, b.y * TILE_SIZE, 2, 2);
+    ctx.fillStyle = COLORS.bullet;
+    ctx.beginPath();
+    ctx.arc(b.x * TILE_SIZE + TILE_SIZE / 2, b.y * TILE_SIZE + TILE_SIZE / 2, 2, 0, Math.PI * 2);
+    ctx.fill();
   });
 }
 

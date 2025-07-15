@@ -4,8 +4,8 @@ class Enemy {
         this.y = y;
         this.type = type;
         this.size = size;
-        // base movement speed
-        this.baseSpeed = type === 'elite' ? 0.125 : 0.15;
+        // base movement speed (slower for realism)
+        this.baseSpeed = type === 'elite' ? 0.04 : 0.05;
         this.speed = this.baseSpeed; // current speed
         this.slowTimer = 0;
         this.alive = true;
@@ -111,7 +111,7 @@ function findNextStep(sx, sy, castle, walls, gates, rocks) {
             found = true;
             break;
         }
-        const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+        const dirs = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[1,-1],[-1,1]];
         for (const [dx, dy] of dirs) {
             const nx = cx + dx;
             const ny = cy + dy;
@@ -138,28 +138,23 @@ export class AIController {
     }
 
     spawnEnemy(type = 'normal') {
-        // spawn at random edge
+        // spawn a single enemy at a random edge position
         const edge = Math.floor(Math.random() * 4);
         let x, y;
-        if (edge === 0) { // top
+        if (edge === 0) {
             x = Math.random() * 64;
             y = 0;
-        } else if (edge === 1) { // bottom
+        } else if (edge === 1) {
             x = Math.random() * 64;
             y = 63;
-        } else if (edge === 2) { // left
+        } else if (edge === 2) {
             x = 0;
             y = Math.random() * 64;
-        } else { // right
+        } else {
             x = 63;
             y = Math.random() * 64;
         }
-        // spawn four smaller enemies in a small cluster
-        for (let i = 0; i < 4; i++) {
-            const ox = (Math.random() - 0.5) * 0.5;
-            const oy = (Math.random() - 0.5) * 0.5;
-            this.enemies.push(new Enemy(x + ox, y + oy, type, 0.5));
-        }
+        this.enemies.push(new Enemy(x, y, type, 0.5));
     }
 
     update(castle, walls, gates, rocks, water) {
