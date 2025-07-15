@@ -1,3 +1,5 @@
+import { drawHex } from './map.js';
+
 export let heatmap = Array.from({ length: 64 }, () => Array(64).fill(0));
 
 export function recordEnemyPosition(x, y) {
@@ -12,7 +14,7 @@ export function resetHeatmap() {
   heatmap = Array.from({ length: 64 }, () => Array(64).fill(0));
 }
 
-export function drawHeatmap(ctx, tileSize) {
+export function drawHeatmap(ctx) {
   const max = Math.max(...heatmap.flat());
   if (max === 0) return;
   for (let y = 0; y < 64; y++) {
@@ -20,8 +22,7 @@ export function drawHeatmap(ctx, tileSize) {
       const val = heatmap[y][x];
       if (val > 0) {
         const intensity = val / max;
-        ctx.fillStyle = `rgba(255,0,0,${intensity * 0.6})`;
-        ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+        drawHex(ctx, x, y, `rgba(255,0,0,${intensity * 0.6})`);
       }
     }
   }
