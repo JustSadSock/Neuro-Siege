@@ -12,7 +12,9 @@ import {
   removeTree,
   MAP_SIZE,
   TILE_SIZE as TILE,
+  HEX_HEIGHT as HEX_H,
   drawHex,
+  refreshStatic,
 } from './map.js';
 import { AIController } from './ai.js';
 import {
@@ -85,7 +87,7 @@ function updatePinch(e) {
       const dxC = cx - pointers.lastCenter.x;
       const dyC = cy - pointers.lastCenter.y;
       offsetX -= dxC / (TILE_SIZE * 0.75 * scale);
-      offsetY -= dyC / (TILE_SIZE * scale);
+      offsetY -= dyC / (HEX_HEIGHT * scale);
     }
     if (pointers.lastDist) {
       let s = scale * (dist / pointers.lastDist);
@@ -110,7 +112,7 @@ canvas.addEventListener('pointermove', (e) => {
     const dx = e.clientX - lastPan.x;
     const dy = e.clientY - lastPan.y;
     offsetX -= dx / (TILE_SIZE * 0.75 * scale);
-    offsetY -= dy / (TILE_SIZE * scale);
+    offsetY -= dy / (HEX_HEIGHT * scale);
     lastPan = { x: e.clientX, y: e.clientY };
     return;
   }
@@ -143,18 +145,19 @@ canvas.addEventListener(
     const cx = rect.width / 2;
     const cy = rect.height / 2;
     const worldX = cx / (TILE_SIZE * 0.75 * scale) + offsetX;
-    const worldY = cy / (TILE_SIZE * scale) + offsetY;
+    const worldY = cy / (HEX_HEIGHT * scale) + offsetY;
     const delta = Math.sign(e.deltaY);
     let s = scale - delta * 0.1;
     s = Math.max(0.5, Math.min(2, s));
     offsetX = worldX - cx / (TILE_SIZE * 0.75 * s);
-    offsetY = worldY - cy / (TILE_SIZE * s);
+    offsetY = worldY - cy / (HEX_HEIGHT * s);
     scale = s;
   },
   { passive: false },
 );
 
 const TILE_SIZE = TILE;
+const HEX_HEIGHT = HEX_H;
 const COLORS = {
   castle: '#4466ff',
   wall: '#999',
@@ -228,7 +231,7 @@ function drawBullets() {
     ctx.fillStyle = COLORS.bullet;
     ctx.beginPath();
     const px = b.x * TILE_SIZE * 0.75 + TILE_SIZE / 2;
-    const py = b.y * TILE_SIZE + (Math.floor(b.x) % 2) * (TILE_SIZE / 2) + TILE_SIZE / 2;
+    const py = b.y * HEX_HEIGHT + (Math.floor(b.x) % 2) * (HEX_HEIGHT / 2) + HEX_HEIGHT / 2;
     ctx.arc(px, py, 2, 0, Math.PI * 2);
     ctx.fill();
   });
@@ -238,7 +241,7 @@ function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
   ctx.scale(scale, scale);
-  ctx.translate(-offsetX * TILE_SIZE * 0.75, -offsetY * TILE_SIZE);
+  ctx.translate(-offsetX * TILE_SIZE * 0.75, -offsetY * HEX_HEIGHT);
   drawGrid(ctx);
   drawBuildZone(ctx);
   drawTerrain(ctx);
@@ -248,7 +251,7 @@ function gameLoop() {
   drawTraps();
   drawTowers();
   drawBullets();
-  if (!running) drawHeatmap(ctx, TILE_SIZE);
+  if (!running) drawHeatmap(ctx);
   updateSquads();
   tickCooldown();
   const killed = ai.update(castle, walls, gates, rocks, water);
@@ -398,7 +401,7 @@ function handleBuildEvent(e) {
   const scaleY = canvas.height / rect.height;
   const rawX = clientX * scaleX / (TILE_SIZE * 0.75 * scale) + offsetX;
   const x = Math.floor(rawX);
-  const rawY = clientY * scaleY / (TILE_SIZE * scale) + offsetY - (x % 2) * 0.5;
+  const rawY = clientY * scaleY / (HEX_HEIGHT * scale) + offsetY - (x % 2) * 0.5;
   const y = Math.floor(rawY);
   if (deleteMode) {
     if (removeBuilding(x, y, resources)) {

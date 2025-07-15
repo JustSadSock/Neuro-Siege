@@ -1,5 +1,6 @@
 export const MAP_SIZE = 64; // 64x64 grid
-export const TILE_SIZE = 10; // pixels
+export const TILE_SIZE = 10; // width of a hexagon in pixels
+export const HEX_HEIGHT = TILE_SIZE * Math.sqrt(3) / 2;
 let buildZoneStart = 22; // 20x20 center area -> start index 22 to 42 for 64 grid
 let buildZoneEnd = 42;
 
@@ -8,6 +9,25 @@ let trees = [];
 let hills = [];
 
 let water = [];
+const staticCanvas = document.createElement('canvas');
+const staticCtx = staticCanvas.getContext('2d');
+
+function refreshStatic() {
+    const width = MAP_SIZE * TILE_SIZE * 0.75 + TILE_SIZE;
+    const height = MAP_SIZE * HEX_HEIGHT + HEX_HEIGHT;
+    staticCanvas.width = width;
+    staticCanvas.height = height;
+    staticCtx.clearRect(0, 0, width, height);
+    for (let y = 0; y < MAP_SIZE; y++) {
+        for (let x = 0; x < MAP_SIZE; x++) {
+            drawHex(staticCtx, x, y, '#222');
+        }
+    }
+    rocks.forEach(r => drawHex(staticCtx, r.x, r.y, '#555'));
+    water.forEach(w => drawHex(staticCtx, w.x, w.y, '#03a9f4'));
+    trees.forEach(t => drawHex(staticCtx, t.x, t.y, '#075604'));
+    hills.forEach(h => drawHex(staticCtx, h.x, h.y, '#444'));
+}
 export function generateMap() {
     water = [];
     rocks = [];
@@ -44,34 +64,30 @@ export function generateMap() {
             }
         }
     }
+
+    refreshStatic();
 }
 
 
 function drawHex(ctx, x, y, fillStyle) {
     const px = x * TILE_SIZE * 0.75;
-    const py = y * TILE_SIZE + (x % 2) * (TILE_SIZE / 2);
+    const py = y * HEX_HEIGHT + (x % 2) * (HEX_HEIGHT / 2);
     ctx.beginPath();
     ctx.moveTo(px + TILE_SIZE * 0.25, py);
     ctx.lineTo(px + TILE_SIZE * 0.75, py);
-    ctx.lineTo(px + TILE_SIZE, py + TILE_SIZE * 0.5);
-    ctx.lineTo(px + TILE_SIZE * 0.75, py + TILE_SIZE);
-    ctx.lineTo(px + TILE_SIZE * 0.25, py + TILE_SIZE);
-    ctx.lineTo(px, py + TILE_SIZE * 0.5);
+    ctx.lineTo(px + TILE_SIZE, py + HEX_HEIGHT / 2);
+    ctx.lineTo(px + TILE_SIZE * 0.75, py + HEX_HEIGHT);
+    ctx.lineTo(px + TILE_SIZE * 0.25, py + HEX_HEIGHT);
+    ctx.lineTo(px, py + HEX_HEIGHT / 2);
     ctx.closePath();
     if (fillStyle) {
         ctx.fillStyle = fillStyle;
         ctx.fill();
     }
-    ctx.stroke();
 }
 
 export function drawGrid(ctx) {
-    ctx.strokeStyle = '#333';
-    for (let y = 0; y < MAP_SIZE; y++) {
-        for (let x = 0; x < MAP_SIZE; x++) {
-            drawHex(ctx, x, y);
-        }
-    }
+    ctx.drawImage(staticCanvas, 0, 0);
 }
 
 export function drawBuildZone(ctx) {
@@ -83,11 +99,8 @@ export function drawBuildZone(ctx) {
     }
 }
 
-export function drawTerrain(ctx) {
-    rocks.forEach(r => drawHex(ctx, r.x, r.y, '#555'));
-    water.forEach(w => drawHex(ctx, w.x, w.y, '#03a9f4'));
-    trees.forEach(t => drawHex(ctx, t.x, t.y, '#075604'));
-    hills.forEach(h => drawHex(ctx, h.x, h.y, '#444'));
+export function drawTerrain() {
+    /* terrain is pre-rendered to the static canvas */
 }
 
 export function inBuildZone(x, y) {
@@ -138,4 +151,4 @@ export function getBuildZone() {
     return { start: buildZoneStart, end: buildZoneEnd };
 }
 
-export { drawHex };
+export { drawHex, refreshStatic };
