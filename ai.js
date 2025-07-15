@@ -1,3 +1,4 @@
+import { MAP_SIZE } from "./map.js";
 class Enemy {
     constructor(x, y, type = 'normal', size = 1) {
         this.x = x;
@@ -117,7 +118,7 @@ function findNextStep(sx, sy, castle, walls, gates, rocks) {
         for (const [dx, dy] of dirs) {
             const nx = cx + dx;
             const ny = cy + dy;
-            if (nx < 0 || ny < 0 || nx >= 64 || ny >= 64) continue;
+            if (nx < 0 || ny < 0 || nx >= MAP_SIZE || ny >= MAP_SIZE) continue;
             const key = `${nx},${ny}`;
             if (blocked.has(key) || visited.has(key)) continue;
             visited.add(key);
@@ -144,17 +145,17 @@ export class AIController {
         const edge = Math.floor(Math.random() * 4);
         let x, y;
         if (edge === 0) {
-            x = Math.random() * 64;
+            x = Math.random() * MAP_SIZE;
             y = 0;
         } else if (edge === 1) {
-            x = Math.random() * 64;
-            y = 63;
+            x = Math.random() * MAP_SIZE;
+            y = MAP_SIZE - 1;
         } else if (edge === 2) {
             x = 0;
-            y = Math.random() * 64;
+            y = Math.random() * MAP_SIZE;
         } else {
-            x = 63;
-            y = Math.random() * 64;
+            x = MAP_SIZE - 1;
+            y = Math.random() * MAP_SIZE;
         }
         this.enemies.push(new Enemy(x, y, type, 0.5));
     }
